@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 88
+exclude =
+    packages/*
+    venv/*
+    .cache
+ignore = E203, E501, W503, E266
+max-complexity = 50

@@ -1,4 +1,25 @@
-Jinja2~=3.0
-PyYAML~=6.0
-snowflake-connector-python>=2.8,<4.0
-structlog~=24.1.0
+Jinja2==3.1.6
+PyYAML==6.0.2
+structlog==25.4.0
+marshmallow==4.0.0
+## Snowflake and Databricks connector dependency
+pyarrow==18.1.0
+
+# Supported databases
+## Postgres
+psycopg==3.2.9
+## SQL Server
+pymssql==2.3.6
+## MySQL
+mysql-connector-python==9.3.0
+## Oracle
+oracledb==3.2.0
+## Snowflake
+snowflake-connector-python==3.16.0
+## Databricks
+databricks-sql-connector==4.0.5
+databricks-sdk==0.57.0
+
+# For UTs
+pytest==8.4.1
+pytest-cov==6.2.1

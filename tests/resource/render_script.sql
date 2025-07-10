@@ -1,0 +1,1 @@
+SELECT {{ env_var('TEST_ENV_VAR') }}

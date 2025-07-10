@@ -5,8 +5,13 @@ import json
 import logging
 import sys
 from enum import Enum
+from typing import Dict
 
 import structlog
+
+from schemachange.common.utils import get_not_none_key_value
+from schemachange.config.base import SubCommand
+from schemachange.session.base import DatabaseType
 
 logger = structlog.getLogger(__name__)
 
@@ -16,7 +21,7 @@ class DeprecateConnectionArgAction(argparse.Action):
         self.call_count = 0
         if "help" in kwargs:
             kwargs["help"] = (
-                f'[DEPRECATED - Set in connections.toml instead.] {kwargs["help"]}'
+                f'[DEPRECATED - Set in connections-config.yml instead.] {kwargs["help"]}'
             )
         super().__init__(*args, **kwargs)
 
@@ -30,43 +35,11 @@ class DeprecateConnectionArgAction(argparse.Action):
         setattr(namespace, self.dest, values)
 
 
-class EnumAction(argparse.Action):
-    """
-    Argparse action for handling Enums
-
-    Thanks to Tim!
-    https://stackoverflow.com/a/60750535
-    """
-
-    def __init__(self, **kwargs):
-        # Pop off the type value
-        enum_type = kwargs.pop("type", None)
-
-        # Ensure an Enum subclass is provided
-        if enum_type is None:
-            raise ValueError("type must be assigned an Enum when using EnumAction")
-        # noinspection PyTypeChecker
-        if not issubclass(enum_type, Enum):
-            raise TypeError("type must be an Enum when using EnumAction")
-
-        # Generate choices from the Enum
-        kwargs.setdefault("choices", tuple(e.name for e in enum_type))
-
-        super().__init__(**kwargs)
-
-        self._enum = enum_type
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        # Convert value back into an Enum
-        value = self._enum[values]
-        setattr(namespace, self.dest, value)
-
-
-def parse_cli_args(args) -> dict:
+def parse_cli_args(args) -> Dict:
     parser = argparse.ArgumentParser(
         prog="schemachange",
-        description="Apply schema changes to a Snowflake account. Full readme at "
-        "https://github.com/Snowflake-Labs/schemachange",
+        description="Apply schema changes to a database. Full readme at "
+        "https://github.com/lam1051999/db-schemachange",
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
@@ -119,67 +92,20 @@ def parse_cli_args(args) -> dict:
     )
 
     subcommands = parser.add_subparsers(dest="subcommand")
-    parser_deploy = subcommands.add_parser("deploy", parents=[parent_parser])
+    parser_deploy = subcommands.add_parser(SubCommand.DEPLOY, parents=[parent_parser])
 
     parser_deploy.register("action", "deprecate", DeprecateConnectionArgAction)
     parser_deploy.add_argument(
-        "-a",
-        "--snowflake-account",
+        "--db-type",
         type=str,
-        help="The name of the snowflake account (e.g. xy12345.east-us-2.azure, xy12345.east-us-2.azure.privatelink, org-accountname, org-accountname.privatelink)",
+        help="Database type that schemachange run against",
         required=False,
-        action="deprecate",
-    )
-    parser_deploy.add_argument(
-        "-u",
-        "--snowflake-user",
-        type=str,
-        help="The name of the snowflake user",
-        required=False,
-        action="deprecate",
-    )
-    parser_deploy.add_argument(
-        "-r",
-        "--snowflake-role",
-        type=str,
-        help="The name of the default role to use",
-        required=False,
-        action="deprecate",
-    )
-    parser_deploy.add_argument(
-        "-w",
-        "--snowflake-warehouse",
-        type=str,
-        help="The name of the default warehouse to use. Can be overridden in the change scripts.",
-        required=False,
-        action="deprecate",
-    )
-    parser_deploy.add_argument(
-        "-d",
-        "--snowflake-database",
-        type=str,
-        help="The name of the default database to use. Can be overridden in the change scripts.",
-        required=False,
-        action="deprecate",
-    )
-    parser_deploy.add_argument(
-        "-s",
-        "--snowflake-schema",
-        type=str,
-        help="The name of the default schema to use. Can be overridden in the change scripts.",
-        required=False,
-        action="deprecate",
+        choices=DatabaseType.items(),
     )
     parser_deploy.add_argument(
         "--connections-file-path",
         type=str,
-        help="Override the default connections.toml file path at snowflake.connector.constants.CONNECTIONS_FILE (OS specific)",
-        required=False,
-    )
-    parser_deploy.add_argument(
-        "--connection-name",
-        type=str,
-        help="Override the default connections.toml connection name. Other connection-related values will override these connection values.",
+        help="File path to connections-config.yml",
         required=False,
     )
     parser_deploy.add_argument(
@@ -215,27 +141,22 @@ def parse_cli_args(args) -> dict:
         help="Run schemachange in dry run mode (the default is False)",
         required=False,
     )
-    parser_deploy.add_argument(
-        "--query-tag",
-        type=str,
-        help="The string to add to the Snowflake QUERY_TAG session value for each query executed",
-        required=False,
-    )
     parser_render = subcommands.add_parser(
-        "render",
+        SubCommand.RENDER,
         description="Renders a script to the console, used to check and verify jinja output from scripts.",
         parents=[parent_parser],
     )
     parser_render.add_argument(
-        "script_path", type=str, help="Path to the script to render"
+        "--script-path", type=str, help="Path to the script to render"
     )
 
     # The original parameters did not support subcommands. Check if a subcommand has been supplied
     # if not default to deploy to match original behaviour.
     if len(args) == 0 or not any(
-        subcommand in args[0].upper() for subcommand in ["DEPLOY", "RENDER"]
+        subcommand in args[0].upper()
+        for subcommand in [item.upper() for item in SubCommand.items()]
     ):
-        args = ["deploy"] + args
+        args = [SubCommand.DEPLOY] + args
 
     parsed_args = parser.parse_args(args)
 
@@ -256,4 +177,4 @@ def parse_cli_args(args) -> dict:
         )
         parsed_kwargs.pop("verbose")
 
-    return {k: v for k, v in parsed_kwargs.items() if v is not None}
+    return get_not_none_key_value(data=parsed_kwargs)

@@ -1,18 +1,18 @@
-# Contributing to schemachange
+# Contributing to db-schemachange
 
 ## Reporting issues
 
 When reporting issues please include as much detail as possible about your
-operating environment, schemachange version and python version. Whenever possible, please
+operating environment, db-schemachange version and python version. Whenever possible, please
 also include a brief, self-contained code example that demonstrates the problem.
 
 We have
-included [issue templates](https://github.com/Snowflake-Labs/schemachange/issues/new/choose) for reporting bugs,
+included [issue templates](https://github.com/lam1051999/db-schemachange/issues/new/choose) for reporting bugs,
 requesting features and seeking clarifications. Choose the appropriate issue template to contribute to the repository.
 
 ## Contributing code
 
-Thank you for your interest in contributing code to schemachange!
+Thank you for your interest in contributing code to db-schemachange!
 
 + If this is your first time contributing to a project on GitHub, please continue reading through
   [our guide to contributing to schemachange](#guide-to-contributing-to-schemachange).
@@ -24,7 +24,7 @@ Thank you for your interest in contributing code to schemachange!
 ### Guide to contributing to schemachange
 
 1. If you are a first-time contributor
-    + Go to [Snowflake-Labs/Schemachange](https://github.com/Snowflake-Labs/schemachange) and click the "fork" button to
+    + Go to [lam1051999/db-schemachange](https://github.com/lam1051999/db-schemachange) and click the "fork" button to
       create your own copy of the project.
     + [Clone](https://github.com/git-guides/git-clone) the project to your local computer
 
@@ -37,17 +37,17 @@ Thank you for your interest in contributing code to schemachange!
     + Change the directory
 
     ```shell
-    cd schemachange
+    cd db-schemachange
     ```
 
     + Add upstream repository:
 
     ```shell
-    git remote add upstream https://github.com/Snowflake-Labs/schemachange
+    git remote add upstream https://github.com/lam1051999/db-schemachange
     ```
 
     + Now, `git remote -v` will show two [remote](https://github.com/git-guides/git-remote) repositories named:
-        + `upstream`, which refers to the `schemachange` repository
+        + `upstream`, which refers to the `db-schemachange` repository
         + `origin`, which refers to your personal fork
     + [Pull](https://github.com/git-guides/git-pull) the latest changes from upstream, including tags:
 
@@ -60,7 +60,7 @@ Thank you for your interest in contributing code to schemachange!
 
     1. From the repo directory, create a virtual environment
        ```bash
-       python -m venv .venv
+       python -m venv venv
        ```
 
     2. Activate your virtual environment. The following table is a replication
@@ -81,10 +81,10 @@ Thank you for your interest in contributing code to schemachange!
        python -m pip install --upgrade pip
        ```
 
-    4. Install the repo as an "editable" package with development dependencies
+    4. Install the development dependencies
 
        ```bash
-       pip install -e .[dev]
+       pip install -r requirements.txt
        ```
 
 3. Develop your contribution
@@ -103,14 +103,12 @@ Thank you for your interest in contributing code to schemachange!
 4. Test your contribution locally
 
    ```bash
-   python -m pytest
+   pytest -svvv && coverage report
    ```
    PS: Please add test cases to the features you are developing so that over time, we can capture any lapse in
    functionality changes.
 
 5. Perform integration tests on your branch from your fork
-    - Follow the [provisioning and schemachange setup instructions](../demo/README.MD) to configure your Snowflake
-      account for testing.
     - Follow [these](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)
       instructions to manually run the `master-pytest` workflow on your fork of the repo, targeting your feature branch.
 

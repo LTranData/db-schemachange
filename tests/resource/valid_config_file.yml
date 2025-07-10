@@ -1,0 +1,15 @@
+db-type: MYSQL
+connections-file-path: connections_config_file.yml
+root-folder: .
+modules-folder: null
+vars:
+  var1: 'value1'
+  var2: 'value2'
+  secrets:
+    var3: 'value3'
+verbose: false
+change-history-table: null
+create-change-history-table: false
+autocommit: false
+dry-run: false
+query-tag: 'TEST_QUERY_TAG'

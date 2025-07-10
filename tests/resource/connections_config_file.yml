@@ -1,0 +1,4 @@
+host: test_host
+database: test_database
+user: test_user
+password: test_password

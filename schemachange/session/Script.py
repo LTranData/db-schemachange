@@ -4,12 +4,7 @@ import dataclasses
 import re
 from abc import ABC
 from pathlib import Path
-from typing import (
-    Literal,
-    ClassVar,
-    TypeVar,
-    Pattern,
-)
+from typing import ClassVar, Literal, Pattern, TypeVar
 
 import structlog
 
@@ -40,7 +35,7 @@ class Script(ABC):
         script_name = cls.get_script_name(file_path=file_path)
         name_parts = cls.pattern.search(file_path.name.strip())
         description = name_parts.group("description").replace("_", " ").capitalize()
-        # noinspection PyArgumentList
+
         return cls(
             name=script_name, file_path=file_path, description=description, **kwargs
         )

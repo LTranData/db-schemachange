@@ -1,0 +1,5 @@
+server_hostname: dbc-123a456d-12as.cloud.databricks.com
+http_path: /sql/1.0/warehouse/312532254e12345y
+credentials_provider:
+  client_id: test
+  client_secret: test
