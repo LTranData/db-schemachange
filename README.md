@@ -1,6 +1,5 @@
 # db-schemachange
 
-[![pytest](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml/badge.svg)](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml)
 [![PyPI](https://img.shields.io/pypi/v/schemachange.svg)](https://pypi.org/project/schemachange)
 
 ## Overview
@@ -17,45 +16,41 @@ To learn more about making a contribution to schemachange, please see our [Contr
 
 ## Table of Contents
 
-1. [Overview](#overview)
-1. [Project Structure](#project-structure)
-    1. [Folder Structure](#folder-structure)
-1. [Change Scripts](#change-scripts)
-    1. [Versioned Script Naming](#versioned-script-naming)
-    1. [Repeatable Script Naming](#repeatable-script-naming)
-    1. [Always Script Naming](#always-script-naming)
-    1. [Script Requirements](#script-requirements)
-    1. [Using Variables in Scripts](#using-variables-in-scripts)
-        1. [Secrets filtering](#secrets-filtering)
-    1. [Jinja templating engine](#jinja-templating-engine)
-    1. [Gotchas](#gotchas)
-1. [Change History Table](#change-history-table)
-1. [Authentication](#authentication)
-    1. [Password Authentication](#password-authentication)
-    1. [External OAuth Authentication](#external-oauth-authentication)
-    1. [External Browser Authentication](#external-browser-authentication)
-    1. [Okta Authentication](#okta-authentication)
-    1. [Private Key Authentication](#private-key-authentication)
-1. [Configuration](#configuration)
-    1. [YAML Config File](#yaml-config-file)
-        1. [Yaml Jinja support](#yaml-jinja-support)
-    1. [connections.toml File](#connectionstoml-file)
-1. [Commands](#commands)
-    1. [deploy](#deploy)
-    1. [render](#render)
-1. [Running schemachange](#running-schemachange)
-    1. [Prerequisites](#prerequisites)
-    1. [Running the Script](#running-the-script)
-1. [Integrating With DevOps](#integrating-with-devops)
-    1. [Sample DevOps Process Flow](#sample-devops-process-flow)
-    1. [Using in a CI/CD Pipeline](#using-in-a-cicd-pipeline)
-1. [Maintainers](#maintainers)
-1. [Third Party Packages](#third-party-packages)
-1. [Legal](#legal)
+* [Overview](#overview)
+* [Project Structure](#project-structure)
+* [Change Scripts](#change-scripts)
+    * [Versioned Script Naming](#versioned-script-naming)
+    * [Repeatable Script Naming](#repeatable-script-naming)
+    * [Always Script Naming](#always-script-naming)
+    * [Script Requirements](#script-requirements)
+    * [Using Variables in Scripts](#using-variables-in-scripts)
+        * [Secrets filtering](#secrets-filtering)
+    * [Jinja templating engine](#jinja-templating-engine)
+* [Change History Table](#change-history-table)
+* [Configuration](#configuration)
+    * [db-schemachange configuration](#db-schemachange-configuration)
+        * [CLI usage](#cli-usage)
+            * [deploy](#deploy)
+            * [render](#render)
+        * [YAML config file](#yaml-config-file)
+    * [connections-config.yml](#connections-configyml)
+* [Authentication](#authentication)
+    * [Databricks](#databricks)
+    * [MySQL](#mysql)
+    * [Oracle](#oracle)
+    * [Postgres](#postgres)
+    * [Snowflake](#snowflake)
+    * [SQL Server](#sql-server)
+* [Yaml Jinja support](#yaml-jinja-support)
+    * [env_var](#env_var)
+* [Running schemachange](#running-schemachange)
+    * [Prerequisites](#prerequisites)
+    * [Running the Script](#running-the-script)
+    * [Using Docker](#using-docker)
+* [Maintainers](#maintainers)
+* [Demo](#demo)
 
 ## Project Structure
-
-### Folder Structure
 
 ```
 (project_root)
@@ -200,15 +195,15 @@ either of the following will tag a variable as a secret:
 
 ### Jinja templating engine
 
-schemachange uses the Jinja templating engine internally and
+`db-schemachange` uses the Jinja templating engine internally and
 supports: [expressions](https://jinja.palletsprojects.com/en/3.0.x/templates/#expressions), [macros](https://jinja.palletsprojects.com/en/3.0.x/templates/#macros), [includes](https://jinja.palletsprojects.com/en/3.0.x/templates/#include)
 and [template inheritance](https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance).
 
-These files can be stored in the root-folder but schemachange also provides a separate modules
+These files can be stored in the root-folder but `db-schemachange` also provides a separate modules
 folder `--modules-folder`. This allows common logic to be stored outside of the main changes scripts.
 
-The Jinja auto-escaping feature is disabled in schemachange, this feature in Jinja is currently designed for where the
-output language is HTML/XML. So if you are using schemachange with untrusted inputs you will need to handle this within
+The Jinja auto-escaping feature is disabled in `db-schemachange`, this feature in Jinja is currently designed for where the
+output language is HTML/XML. So if you are using `db-schemachange` with untrusted inputs you will need to handle this within
 your change scripts.
 
 ## Change History Table
@@ -515,13 +510,19 @@ In order to run schemachange you must have the following:
 schemachange is a single python script located at [schemachange/cli.py](schemachange/cli.py). It can be executed as
 follows:
 
-```
-python schemachange/cli.py [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
+```bash
+python -m schemachange.cli [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
 ```
 
 Or if installed via `pip`, it can be executed as follows:
 
-```
+```bash
+# Build library
+pip install --upgrade build
+pip install --upgrade -r requirements.txt
+python -m build
+pip install dist/db_schemachange-*-py3-none-any.whl
+
 schemachange [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
 ```
 
