@@ -1,3 +1,7 @@
-CREATE OR REPLACE VIEW test.v_jobs
+CREATE OR REPLACE VIEW public.v_jobs
 AS
-SELECT * FROM test.jobs;
+SELECT * FROM public.jobs;
+
+CREATE OR REPLACE VIEW public.v_jobs_2_multi
+AS
+SELECT * FROM public.jobs;

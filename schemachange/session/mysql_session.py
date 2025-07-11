@@ -19,6 +19,22 @@ class MySQLSession(BaseSession):
         )
         self._cursor = self._connection.cursor()
 
+    def create_change_history_table(self, dry_run: bool) -> None:
+        query = f"""\
+            CREATE TABLE {self.change_history_table.fully_qualified} (
+                VERSION VARCHAR(1000),
+                DESCRIPTION VARCHAR(1000),
+                SCRIPT VARCHAR(1000),
+                SCRIPT_TYPE VARCHAR(1000),
+                CHECKSUM VARCHAR(1000),
+                EXECUTION_TIME BIGINT,
+                STATUS VARCHAR(1000),
+                INSTALLED_BY VARCHAR(1000),
+                INSTALLED_ON TIMESTAMP(6) -- MySQL requires precision of timestamp
+            )
+        """
+        self.execute_query_with_debug(query=query, dry_run=dry_run)
+
     def fetch_change_history_metadata(self) -> List[Dict]:
         query = f"""\
             SELECT
