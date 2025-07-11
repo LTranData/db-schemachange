@@ -5,7 +5,7 @@ from collections import defaultdict
 from textwrap import dedent, indent
 from typing import Any, Dict, List, Optional, Tuple
 
-import sqlglot
+import sqlparse
 import structlog
 
 from schemachange.common.const import DEFAULT_DATETIME_FORMAT
@@ -373,10 +373,7 @@ class BaseSession(metaclass=Singleton):
             self.reset_session()
             self.reset_query_tag(extra_tag=script.name)
             try:
-                sql_commands = [
-                    item.sql() for item in sqlglot.parse(sql=script_content)
-                ]
-                for command in sql_commands:
+                for command in sqlparse.split(sql=script_content):
                     self.execute_query(query=command)
             except Exception as e:
                 raise Exception(f"Failed to execute {script.name}") from e
