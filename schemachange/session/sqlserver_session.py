@@ -33,7 +33,7 @@ class SQLServerSession(BaseSession):
                 EXECUTION_TIME BIGINT,
                 STATUS VARCHAR(1000),
                 INSTALLED_BY VARCHAR(1000),
-                INSTALLED_ON DATETIME
+                INSTALLED_ON DATETIME2
             )
         """
         self.execute_query_with_debug(query=query, dry_run=dry_run)

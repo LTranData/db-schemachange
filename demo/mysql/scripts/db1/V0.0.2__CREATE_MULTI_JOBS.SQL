@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public.jobs (
+CREATE TABLE IF NOT EXISTS public.jobs_1_multi (
     id INT,
     name VARCHAR(100),
     description TEXT
