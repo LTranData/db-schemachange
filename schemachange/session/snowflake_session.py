@@ -50,13 +50,13 @@ class SnowflakeSession(BaseSession):
     def reset_session(self):
         reset_query = []
         if self.role:
-            reset_query.append(f"USE ROLE IDENTIFIER('{self.role}');")
+            reset_query.append(f"USE ROLE IDENTIFIER('{self.role}')")
         if self.warehouse:
-            reset_query.append(f"USE WAREHOUSE IDENTIFIER('{self.warehouse}');")
+            reset_query.append(f"USE WAREHOUSE IDENTIFIER('{self.warehouse}')")
         if self.database:
-            reset_query.append(f"USE DATABASE IDENTIFIER('{self.database}');")
+            reset_query.append(f"USE DATABASE IDENTIFIER('{self.database}')")
         if self.schema:
-            reset_query.append(f"USE SCHEMA IDENTIFIER('{self.schema}');")
+            reset_query.append(f"USE SCHEMA IDENTIFIER('{self.schema}')")
 
         if reset_query:
             self.execute_query(query="\n".join(reset_query))

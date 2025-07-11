@@ -50,7 +50,6 @@ class JinjaTemplateProcessor:
         posix_path = Path(script).as_posix()
         template = self.__environment.get_template(posix_path)
         content = template.render(**variables).strip()
-        content = content[:-1] if content.endswith(";") else content
         return content
 
     def relpath(self, file_path: Path):

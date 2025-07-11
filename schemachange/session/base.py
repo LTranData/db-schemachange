@@ -347,7 +347,7 @@ class BaseSession(metaclass=Singleton):
                 '{status}',
                 {apply_user},
                 '{datetime.datetime.now().strftime(DEFAULT_DATETIME_FORMAT)}'
-            );
+            )
         """
         self.execute_query(query=dedent(query))
 
