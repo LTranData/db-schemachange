@@ -8,6 +8,7 @@ pyarrow==18.1.0
 # Supported databases
 ## Postgres
 psycopg==3.2.9
+psycopg[binary]==3.2.9
 ## SQL Server
 pymssql==2.3.6
 ## MySQL

@@ -68,13 +68,14 @@ class SQLServerSession(BaseSession):
         schemachange_database = self.change_history_table.database_name
         schemachange_schema = self.change_history_table.schema_name
 
-        # Create database if not exists
-        data = self.execute_query(
+        # Check if database exists yet
+        database_data = self.execute_query(
             query=f"SELECT 1 FROM sys.databases WHERE name = '{schemachange_database}'"
         )
-        if not data:
-            self.execute_query_with_debug(
-                query=f"CREATE DATABASE {schemachange_database}", dry_run=dry_run
+        if not database_data:
+            raise Exception(
+                f"Database '{schemachange_database}' of change history table does not exist. "
+                "It should be created beforehand"
             )
 
         # Create schema within the schemachange database if not exists

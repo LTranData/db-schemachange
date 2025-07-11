@@ -1,5 +1,6 @@
 # db-schemachange
 
+[![pytest](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml/badge.svg)](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml)
 [![PyPI](https://img.shields.io/pypi/v/schemachange.svg)](https://pypi.org/project/schemachange)
 
 ## Overview
@@ -275,7 +276,20 @@ Schemachange-specific parameters can be supplied in two different ways (in order
 This is the main command that runs the deployment process.
 
 ```bash
-usage: schemachange deploy [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
+usage: schemachange deploy [-h] \
+  [--config-folder CONFIG_FOLDER] \
+  [--config-file-name CONFIG_FILE_NAME] \
+  [-f ROOT_FOLDER] \
+  [-m MODULES_FOLDER] \
+  [--vars VARS] \
+  [--db-type DB_TYPE] \
+  [--connections-file-path CONNECTIONS_FILE_PATH] \
+  [-c CHANGE_HISTORY_TABLE] \
+  [--create-change-history-table] \
+  [--query-tag QUERY_TAG] \
+  [-v] \
+  [-ac] \
+  [--dry-run]
 ```
 
 | Parameter                                                            | Description                                                                                                                                                                                                                                                         |
@@ -301,7 +315,12 @@ This subcommand is used to render a single script to the console. It is intended
 troubleshooting of script that use features from the jinja template engine.
 
 ```bash
-usage: schemachange render [-h] [--config-folder CONFIG_FOLDER] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] script
+usage: schemachange render [-h] \
+  [--config-folder CONFIG_FOLDER] \
+  [-f ROOT_FOLDER] \
+  [-m MODULES_FOLDER] \
+  [--vars VARS] \
+  [-v] script
 ```
 
 | Parameter                                          | Description                                                                                                                               |
@@ -511,7 +530,20 @@ schemachange is a single python script located at [schemachange/cli.py](schemach
 follows:
 
 ```bash
-python -m schemachange.cli [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
+python -m schemachange.cli [subcommand] [-h] \
+  [--config-folder CONFIG_FOLDER] \
+  [--config-file-name CONFIG_FILE_NAME] \
+  [-f ROOT_FOLDER] \
+  [-m MODULES_FOLDER] \
+  [--vars VARS] \
+  [--db-type DB_TYPE] \
+  [--connections-file-path CONNECTIONS_FILE_PATH] \
+  [-c CHANGE_HISTORY_TABLE] \
+  [--create-change-history-table] \
+  [--query-tag QUERY_TAG] \
+  [-v] \
+  [-ac] \
+  [--dry-run]
 ```
 
 Or if installed via `pip`, it can be executed as follows:
@@ -523,7 +555,20 @@ pip install --upgrade -r requirements.txt
 python -m build
 pip install dist/db_schemachange-*-py3-none-any.whl
 
-schemachange [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [-v] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [-ac] [--dry-run] [--query-tag QUERY_TAG]
+schemachange [subcommand] [-h] \
+  [--config-folder CONFIG_FOLDER] \
+  [--config-file-name CONFIG_FILE_NAME] \
+  [-f ROOT_FOLDER] \
+  [-m MODULES_FOLDER] \
+  [--vars VARS] \
+  [--db-type DB_TYPE] \
+  [--connections-file-path CONNECTIONS_FILE_PATH] \
+  [-c CHANGE_HISTORY_TABLE] \
+  [--create-change-history-table] \
+  [--query-tag QUERY_TAG] \
+  [-v] \
+  [-ac] \
+  [--dry-run]
 ```
 
 1. Make sure you've completed the [Prerequisites](#prerequisites) steps above
@@ -545,5 +590,12 @@ schemachange [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FIL
 ## Demo
 
 ```bash
-schemachange deploy --verbose --vars '{"secret":"abc"}' --connections-file-path demo/mysql/config/connections-config.yml --config-folder demo/mysql/config --root-folder demo/mysql/scripts --create-change-history-table --db-type MYSQL
+schemachange deploy \
+  --verbose \
+  --vars '{"secret":"abc"}' \
+  --connections-file-path demo/mysql/config/connections-config.yml \
+  --config-folder demo/mysql/config \
+  --root-folder demo/mysql/scripts \
+  --db-type MYSQL \
+  --create-change-history-table
 ```

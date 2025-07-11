@@ -65,11 +65,16 @@ class SnowflakeSession(BaseSession):
         schemachange_database = self.change_history_table.database_name
         schemachange_schema = self.change_history_table.schema_name
 
-        # Create database if not exists
-        self.execute_query_with_debug(
-            query=f"CREATE DATABASE IF NOT EXISTS {schemachange_database}",
-            dry_run=dry_run,
+        # Check if database exists yet
+        database_data = self.execute_query(
+            query=f"SHOW DATABASES LIKE '{schemachange_database}'"
         )
+        if not database_data:
+            raise Exception(
+                f"Database '{schemachange_database}' of change history table does not exist. "
+                "It should be created beforehand"
+            )
+
         # Create schema within the schemachange database if not exists
         self.execute_query_with_debug(
             query=f"CREATE SCHEMA IF NOT EXISTS {schemachange_database}.{schemachange_schema}",

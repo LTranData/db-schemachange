@@ -120,7 +120,7 @@ class DatabricksSession(BaseSession):
         )
         if not database_data:
             raise Exception(
-                f"Database '{schemachange_database}' of schema history table does not exist. "
+                f"Catalog '{schemachange_database}' of change history table does not exist. "
                 "It should be created beforehand"
             )
         # Create schema within the schemachange database if not exists

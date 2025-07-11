@@ -36,5 +36,9 @@ class PostgresSession(BaseSession):
         return data
 
     def create_change_history_schema(self, dry_run: bool) -> None:
+        self.logger.info(
+            f"Using current session database '{self.dbname}' "
+            "for creating change history table"
+        )
         query = f"CREATE SCHEMA IF NOT EXISTS {self.change_history_table.schema_name}"
         self.execute_query_with_debug(query=query, dry_run=dry_run)

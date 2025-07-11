@@ -43,7 +43,5 @@ class OracleSession(BaseSession):
             )
 
     def create_change_history_schema(self, dry_run: bool) -> None:
-        query = (
-            f"CREATE DATABASE IF NOT EXISTS {self.change_history_table.database_name}"
-        )
-        self.execute_query_with_debug(query=query, dry_run=dry_run)
+        # TODO: implement logic to check if schemachange database exists
+        pass

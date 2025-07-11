@@ -1,4 +1,4 @@
-from pathlib import PosixPath
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -26,8 +26,8 @@ def test_get_merged_config():
         data = get_merged_config(logger=mock_logger)
         assert data.__dict__ == {
             "subcommand": SubCommand.DEPLOY,
-            "config_file_path": PosixPath(f"{TEST_DIR}/resource/valid_config_file.yml"),
-            "root_folder": PosixPath("."),
+            "config_file_path": Path(f"{TEST_DIR}/resource/valid_config_file.yml"),
+            "root_folder": Path("."),
             "modules_folder": None,
             "config_vars": {
                 "var1": "value1",
@@ -36,7 +36,7 @@ def test_get_merged_config():
             },
             "secrets": {"value3"},
             "log_level": 20,
-            "connections_file_path": PosixPath(
+            "connections_file_path": Path(
                 f"{TEST_DIR}/resource/connections_config_file.yml"
             ),
             "change_history_table": ChangeHistoryTable(
@@ -82,11 +82,11 @@ def test_get_merged_config_for_render():
         data = get_merged_config(logger=mock_logger)
         assert data.__dict__ == {
             "subcommand": SubCommand.RENDER,
-            "config_file_path": PosixPath("schemachange-config.yml"),
-            "root_folder": PosixPath("."),
+            "config_file_path": Path("schemachange-config.yml"),
+            "root_folder": Path("."),
             "modules_folder": None,
             "config_vars": {},
             "secrets": set(),
             "log_level": 20,
-            "script_path": PosixPath("tests/resource/render_script.sql"),
+            "script_path": Path("tests/resource/render_script.sql"),
         }

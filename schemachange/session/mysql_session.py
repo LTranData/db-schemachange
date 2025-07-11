@@ -37,7 +37,14 @@ class MySQLSession(BaseSession):
             self.execute_query(query=f"USE {self.database}")
 
     def create_change_history_schema(self, dry_run: bool) -> None:
-        query = (
-            f"CREATE DATABASE IF NOT EXISTS {self.change_history_table.database_name}"
+        schemachange_database = self.change_history_table.database_name
+
+        # Check if database exists yet
+        database_data = self.execute_query(
+            query=f"SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE UPPER(SCHEMA_NAME) = UPPER('{schemachange_database}')"
         )
-        self.execute_query_with_debug(query=query, dry_run=dry_run)
+        if not database_data:
+            raise Exception(
+                f"Database '{schemachange_database}' of change history table does not exist. "
+                "It should be created beforehand"
+            )
