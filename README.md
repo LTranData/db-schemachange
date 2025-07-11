@@ -1,7 +1,7 @@
 # db-schemachange
 
 [![pytest](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml/badge.svg)](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml)
-[![PyPI](https://img.shields.io/pypi/v/schemachange.svg)](https://pypi.org/project/schemachange)
+[![PyPI](https://img.shields.io/pypi/v/db-schemachange.svg)](https://pypi.org/project/db-schemachange)
 
 ## Overview
 
@@ -50,6 +50,7 @@ To learn more about making a contribution to schemachange, please see our [Contr
     * [Using Docker](#using-docker)
 * [Maintainers](#maintainers)
 * [Demo](#demo)
+* [PyPI](#pypi)
 
 ## Project Structure
 
@@ -549,12 +550,16 @@ python -m schemachange.cli [subcommand] [-h] \
 Or if installed via `pip`, it can be executed as follows:
 
 ```bash
-# Build library
+# Build library from source
 pip install --upgrade build
 pip install --upgrade -r requirements.txt
 python -m build
 pip install dist/db_schemachange-*-py3-none-any.whl
 
+# Or install via PyPI
+pip install --upgrade db-schemachange
+
+# Run the command
 schemachange [subcommand] [-h] \
   [--config-folder CONFIG_FOLDER] \
   [--config-file-name CONFIG_FILE_NAME] \
@@ -574,13 +579,17 @@ schemachange [subcommand] [-h] \
 1. Make sure you've completed the [Prerequisites](#prerequisites) steps above
 1. Get a copy of this schemachange repository (either via a clone or download)
 1. Open a shell and change directory to your copy of the schemachange repository
-1. Run schemachange (see [Running the Script](#running-the-script) above) with your Snowflake account details and
+1. Run schemachange (see [Running the Script](#running-the-script) above) with your database connection details and
    respective demo project as the root folder (make sure you use the full path)
 
 ### Using Docker
 
 ```bash
-# Will be available soon
+docker run -it --rm \
+  --name schemachange-script \
+  -v "$PWD":/usr/src/schemachange \
+  -w /usr/src/schemachange \
+  python:3 /bin/bash -c "pip install --upgrade db-schemachange && schemachange [subcommand] [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [--query-tag QUERY_TAG] [-v] [-ac] [--dry-run]"
 ```
 
 ## Maintainers
