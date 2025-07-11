@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Set
 
 import jinja2
+import sqlparse
 import structlog
 import yaml
 from marshmallow import Schema
@@ -147,3 +148,15 @@ def load_yaml_config(config_file_path: Path | None) -> Dict[str, Any]:
 def get_connect_kwargs(connections_info: Dict[str, Any], supported_args_schema: Schema):
     connect_kwargs = supported_args_schema().load(connections_info)
     return get_not_none_key_value(data=connect_kwargs)
+
+
+def validate_script_content(script_name: str, script_content: str) -> List[str]:
+    queries = sqlparse.split(sql=script_content)
+    for query in queries:
+        formatted_query = sqlparse.format(
+            query, strip_comments=True, strip_whitespace=True
+        )
+        if not formatted_query or formatted_query == ";":
+            raise Exception(
+                f"Script {script_name} contains invalid statement: {formatted_query}"
+            )

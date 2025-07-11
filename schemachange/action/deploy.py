@@ -6,6 +6,7 @@ from typing import List
 
 import structlog
 
+from schemachange.common.utils import validate_script_content
 from schemachange.config.deploy_config import DeployConfig
 from schemachange.jinja.jinja_template_processor import JinjaTemplateProcessor
 from schemachange.session.base import BaseSession
@@ -144,6 +145,7 @@ def deploy(
                     scripts_skipped += 1
                     continue
 
+            validate_script_content(script_name=script.name, script_content=content)
             db_session.apply_change_script(
                 script=script,
                 script_content=content,
