@@ -8,7 +8,7 @@ from schemachange.config.redact_config_secrets import redact_config_secrets
 from schemachange.session.session_factory import get_db_session
 
 module_logger = structlog.getLogger(__name__)
-SCHEMACHANGE_VERSION = "0.0.9"
+SCHEMACHANGE_VERSION = "0.1.0"
 
 
 def main():
