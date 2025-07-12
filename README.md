@@ -21,13 +21,13 @@ You can install the `db-schemachange` package with all available connectors, or 
 
 ```bash
 pip install --upgrade db-schemachange # Install the package WITHOUT connectors
-pip install --upgrade db-schemachange[all] # Install the package with all connectors
-pip install --upgrade db-schemachange[postgres] # Install the package with Postgres connector
-pip install --upgrade db-schemachange[sqlserver] # Install the package with SQL Server connector
-pip install --upgrade db-schemachange[mysql] # Install the package with MySQL connector
-pip install --upgrade db-schemachange[oracle] # Install the package with Oracle connector
-pip install --upgrade db-schemachange[snowflake] # Install the package with Snowflake connector
-pip install --upgrade db-schemachange[databricks] # Install the package with Databricks connector
+pip install --upgrade "db-schemachange[all]" # Install the package with all connectors
+pip install --upgrade "db-schemachange[postgres]" # Install the package with Postgres connector
+pip install --upgrade "db-schemachange[sqlserver]" # Install the package with SQL Server connector
+pip install --upgrade "db-schemachange[mysql]" # Install the package with MySQL connector
+pip install --upgrade "db-schemachange[oracle]" # Install the package with Oracle connector
+pip install --upgrade "db-schemachange[snowflake]" # Install the package with Snowflake connector
+pip install --upgrade "db-schemachange[databricks]" # Install the package with Databricks connector
 ```
 
 ## Table of Contents
