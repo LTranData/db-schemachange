@@ -15,42 +15,57 @@ For the complete list of changes made to schemachange check out the [CHANGELOG](
 
 To learn more about making a contribution to schemachange, please see our [Contributing guide](.github/CONTRIBUTING.md).
 
+## Installation options
+
+You can install the `db-schemachange` package with all available connectors, or you can choose a specific one that suits your needs for a lighter installation.
+
+```bash
+pip install --upgrade db-schemachange # Install the package WITHOUT connectors
+pip install --upgrade db-schemachange[all] # Install the package with all connectors
+pip install --upgrade db-schemachange[postgres] # Install the package with Postgres connector
+pip install --upgrade db-schemachange[sqlserver] # Install the package with SQL Server connector
+pip install --upgrade db-schemachange[mysql] # Install the package with MySQL connector
+pip install --upgrade db-schemachange[oracle] # Install the package with Oracle connector
+pip install --upgrade db-schemachange[snowflake] # Install the package with Snowflake connector
+pip install --upgrade db-schemachange[databricks] # Install the package with Databricks connector
+```
+
 ## Table of Contents
 
-* [Overview](#overview)
-* [Project Structure](#project-structure)
-* [Change Scripts](#change-scripts)
-    * [Versioned Script Naming](#versioned-script-naming)
-    * [Repeatable Script Naming](#repeatable-script-naming)
-    * [Always Script Naming](#always-script-naming)
-    * [Script Requirements](#script-requirements)
-    * [Using Variables in Scripts](#using-variables-in-scripts)
-        * [Secrets filtering](#secrets-filtering)
-    * [Jinja templating engine](#jinja-templating-engine)
-* [Change History Table](#change-history-table)
-* [Configuration](#configuration)
-    * [db-schemachange configuration](#db-schemachange-configuration)
-        * [CLI usage](#cli-usage)
-            * [deploy](#deploy)
-            * [render](#render)
-        * [YAML config file](#yaml-config-file)
-    * [connections-config.yml](#connections-configyml)
-* [Authentication](#authentication)
-    * [Databricks](#databricks)
-    * [MySQL](#mysql)
-    * [Oracle](#oracle)
-    * [Postgres](#postgres)
-    * [Snowflake](#snowflake)
-    * [SQL Server](#sql-server)
-* [Yaml Jinja support](#yaml-jinja-support)
-    * [env_var](#env_var)
-* [Running schemachange](#running-schemachange)
-    * [Prerequisites](#prerequisites)
-    * [Running the Script](#running-the-script)
-    * [Using Docker](#using-docker)
-* [Maintainers](#maintainers)
-* [Demo](#demo)
-* [PyPI](#pypi)
+- [Overview](#overview)
+- [Installation options](#installation-options)
+- [Project Structure](#project-structure)
+- [Change Scripts](#change-scripts)
+  - [Versioned Script Naming](#versioned-script-naming)
+  - [Repeatable Script Naming](#repeatable-script-naming)
+  - [Always Script Naming](#always-script-naming)
+  - [Script Requirements](#script-requirements)
+  - [Using Variables in Scripts](#using-variables-in-scripts)
+    - [Secrets filtering](#secrets-filtering)
+  - [Jinja templating engine](#jinja-templating-engine)
+- [Change History Table](#change-history-table)
+- [Configuration](#configuration)
+  - [db-schemachange configuration](#db-schemachange-configuration)
+    - [CLI usage](#cli-usage)
+      - [deploy](#deploy)
+      - [render](#render)
+    - [YAML config file](#yaml-config-file)
+  - [connections-config.yml](#connections-configyml)
+- [Authentication](#authentication)
+  - [Databricks](#databricks)
+  - [MySQL](#mysql)
+  - [Oracle](#oracle)
+  - [Postgres](#postgres)
+  - [Snowflake](#snowflake)
+  - [SQL Server](#sql-server)
+- [Yaml Jinja support](#yaml-jinja-support)
+  - [env_var](#env_var)
+- [Running schemachange](#running-schemachange)
+  - [Prerequisites](#prerequisites)
+  - [Running the Script](#running-the-script)
+  - [Using Docker](#using-docker)
+- [Maintainers](#maintainers)
+- [Demo](#demo)
 
 ## Project Structure
 
@@ -86,21 +101,21 @@ from [Flyway docs](https://flywaydb.org/documentation/migrations#versioned-migra
 
 With the following rules for each part of the filename:
 
-* **Prefix**: The letter 'V' for versioned change
-* **Version**: A unique version number with dots or underscores separating as many number parts as you like
-* **Separator**: __ (two underscores)
-* **Description**: An arbitrary description with words separated by underscores or spaces (can not include two
+- **Prefix**: The letter 'V' for versioned change
+- **Version**: A unique version number with dots or underscores separating as many number parts as you like
+- **Separator**: \_\_ (two underscores)
+- **Description**: An arbitrary description with words separated by underscores or spaces (can not include two
   underscores)
-* **Suffix**: .sql or .sql.jinja
+- **Suffix**: .sql or .sql.jinja
 
 For example, a script name that follows this convention is: `V1.1.1__first_change.sql`. As with Flyway, the unique
 version string is very flexible. You just need to be consistent and always use the same convention, like 3 sets of
 numbers separated by periods. Here are a few valid version strings:
 
-* 1.1
-* 1_1
-* 1.2.3
-* 1_2_3
+- 1.1
+- 1_1
+- 1.2.3
+- 1_2_3
 
 Every script within a database folder must have a unique version number. `db-schemachange` will check for duplicate version
 numbers and throw an error if it finds any. This helps to ensure that developers who are working in parallel don't
@@ -117,9 +132,9 @@ from [Flyway docs](https://flywaydb.org/documentation/concepts/migrations.html#r
 
 e.g:
 
-* R__sp_add_sales.sql
-* R__fn_get_timezone.sql
-* R__fn_sort_ascii.sql
+- R\_\_sp_add_sales.sql
+- R\_\_fn_get_timezone.sql
+- R\_\_fn_sort_ascii.sql
 
 All repeatable change scripts are applied each time the utility is run, if there is a change in the file.
 Repeatable scripts could be used for maintaining code that always needs to be applied in its entirety. e.g. stores
@@ -138,8 +153,8 @@ The script name must follow this pattern:
 
 e.g.
 
-* A__add_user.sql
-* A__assign_roles.sql
+- A\_\_add_user.sql
+- A\_\_assign_roles.sql
 
 This type of change script is useful for an environment set up after cloning. Always scripts are applied always last.
 
@@ -160,7 +175,7 @@ the `--vars` command line parameter or the YAML config file `schemachange-config
 can pass variables like this: `--vars '{"variable1": "value", "variable2": "value2"}'`. This parameter accepts a flat
 JSON object formatted as a string.
 
-> *Nested objects and arrays don't make sense at this point and aren't supported.*
+> _Nested objects and arrays don't make sense at this point and aren't supported._
 
 `db-schemachange` will replace any variable placeholders before running your change script code and will throw an error if it
 finds any variable placeholders that haven't been replaced.
@@ -176,23 +191,23 @@ either of the following will tag a variable as a secret:
 
 1. The variable name has the word `secret` in it.
    ```yaml
-      config-version: 1
-      vars:
-         bucket_name: S3://......  # not a secret
-         secret_key: 567576D8E  # a secret
+   config-version: 1
+   vars:
+     bucket_name: S3://...... # not a secret
+     secret_key: 567576D8E # a secret
    ```
 2. The variable is a child of a key named `secrets`.
    ```yaml
-      config-version: 1
-      vars:
-      secrets:
-         my_key: 567576D8E # a secret
-      aws:
-         bucket_name: S3://......  # not a secret
-         secrets:
-            encryption_key: FGDSUUEHDHJK # a secret
-            us_east_1:
-               encryption_key: sdsdsd # a secret
+   config-version: 1
+   vars:
+   secrets:
+     my_key: 567576D8E # a secret
+   aws:
+     bucket_name: S3://...... # not a secret
+     secrets:
+       encryption_key: FGDSUUEHDHJK # a secret
+       us_east_1:
+         encryption_key: sdsdsd # a secret
    ```
 
 ### Jinja templating engine
@@ -225,17 +240,17 @@ before running `db-schemachange`.
 
 The structure of the `CHANGE_HISTORY` table is as follows:
 
-| Column Name    | Type          | Example                       |
-|----------------|---------------|-------------------------------|
-| VERSION        | VARCHAR(1000) | 1.1.1                         |
-| DESCRIPTION    | VARCHAR(1000) | First change                  |
-| SCRIPT         | VARCHAR(1000) | V1.1.1__first_change.sql      |
-| SCRIPT_TYPE    | VARCHAR(1000) | V                             |
-| CHECKSUM       | VARCHAR(1000) | 38e5ba03b1a6d2...             |
-| EXECUTION_TIME | BIGINT        | 4                             |
-| STATUS         | VARCHAR(1000) | Success                       |
-| INSTALLED_BY   | VARCHAR(1000) | DATABASE_USER                 |
-| INSTALLED_ON   | TIMESTAMP     | 2020-03-17 12:54:33           |
+| Column Name    | Type          | Example                    |
+| -------------- | ------------- | -------------------------- |
+| VERSION        | VARCHAR(1000) | 1.1.1                      |
+| DESCRIPTION    | VARCHAR(1000) | First change               |
+| SCRIPT         | VARCHAR(1000) | V1.1.1\_\_first_change.sql |
+| SCRIPT_TYPE    | VARCHAR(1000) | V                          |
+| CHECKSUM       | VARCHAR(1000) | 38e5ba03b1a6d2...          |
+| EXECUTION_TIME | BIGINT        | 4                          |
+| STATUS         | VARCHAR(1000) | Success                    |
+| INSTALLED_BY   | VARCHAR(1000) | DATABASE_USER              |
+| INSTALLED_ON   | TIMESTAMP     | 2020-03-17 12:54:33.123    |
 
 A new row will be added to this table every time a change script has been applied to the database. `db-schemachange` will use
 this table to identify which changes have been applied to the database and will not apply the same version more than
@@ -293,22 +308,22 @@ usage: schemachange deploy [-h] \
   [--dry-run]
 ```
 
-| Parameter                                                            | Description                                                                                                                                                                                                                                                         |
-|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| -h, --help                                                           | Show the help message and exit                                                                                                                                                                                                                                      |
-| --config-folder CONFIG_FOLDER                                        | The folder to look in for the schemachange config file (the default is the current working directory)                                                                                                                                                               |
-| --config-file-name CONFIG_FILE_NAME                                  | The file name of the schemachange config file. (the default is schemachange-config.yml)                                                                                                                                                                             |
-| -f ROOT_FOLDER, --root-folder ROOT_FOLDER                            | The root folder for the database change scripts. The default is the current directory.                                                                                                                                                                              |
-| -m MODULES_FOLDER, --modules-folder MODULES_FOLDER                   | The modules folder for jinja macros and templates to be used across mutliple scripts                                                                                                                                                                                |
-| --vars VARS                                                          | Define values for the variables to replaced in change scripts, given in JSON format. Vars supplied via the command line will be merged with YAML-supplied vars (e.g. '{"variable1": "value1", "variable2": "value2"}')                                              |
-| -v, --verbose                                                        | Display verbose debugging details during execution. The default is 'False'.                                                                                                                                                                                         |
-| --db-type                                                            | Database type to run schemachange against. Should be one of [DATABRICKS, MYSQL, ORACLE, POSTGRES, SNOWFLAKE, SQL_SERVER]                                                                                                                                            |
-| --connections-file-path CONNECTIONS_FILE_PATH                        | YAML file for connection detail such as username, password, database,...                                                                                                                                                                                            |
-| -c CHANGE_HISTORY_TABLE, --change-history-table CHANGE_HISTORY_TABLE | Used to override the default name of the change history table (which is METADATA.[SCHEMACHANGE].CHANGE_HISTORY)                                                                                                                                                     |
-| --create-change-history-table                                        | Create the change history table if it does not exist. The default is 'False'.                                                                                                                                                                                       |
-| -ac, --autocommit                                                    | Enable autocommit feature for DML commands. The default is 'False'.                                                                                                                                                                                                 |
-| --dry-run                                                            | Run schemachange in dry run mode. The default is 'False'.                                                                                                                                                                                                           |
-| --query-tag                                                          | A string to include in the QUERY_TAG that is attached to every SQL statement executed.                                                                                                                                                                              |
+| Parameter                                                            | Description                                                                                                                                                                                                            |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -h, --help                                                           | Show the help message and exit                                                                                                                                                                                         |
+| --config-folder CONFIG_FOLDER                                        | The folder to look in for the schemachange config file (the default is the current working directory)                                                                                                                  |
+| --config-file-name CONFIG_FILE_NAME                                  | The file name of the schemachange config file. (the default is schemachange-config.yml)                                                                                                                                |
+| -f ROOT_FOLDER, --root-folder ROOT_FOLDER                            | The root folder for the database change scripts. The default is the current directory.                                                                                                                                 |
+| -m MODULES_FOLDER, --modules-folder MODULES_FOLDER                   | The modules folder for jinja macros and templates to be used across mutliple scripts                                                                                                                                   |
+| --vars VARS                                                          | Define values for the variables to replaced in change scripts, given in JSON format. Vars supplied via the command line will be merged with YAML-supplied vars (e.g. '{"variable1": "value1", "variable2": "value2"}') |
+| -v, --verbose                                                        | Display verbose debugging details during execution. The default is 'False'.                                                                                                                                            |
+| --db-type                                                            | Database type to run schemachange against. Should be one of [DATABRICKS, MYSQL, ORACLE, POSTGRES, SNOWFLAKE, SQL_SERVER]                                                                                               |
+| --connections-file-path CONNECTIONS_FILE_PATH                        | YAML file for connection detail such as username, password, database,...                                                                                                                                               |
+| -c CHANGE_HISTORY_TABLE, --change-history-table CHANGE_HISTORY_TABLE | Used to override the default name of the change history table (which is METADATA.[SCHEMACHANGE].CHANGE_HISTORY)                                                                                                        |
+| --create-change-history-table                                        | Create the change history table if it does not exist. The default is 'False'.                                                                                                                                          |
+| -ac, --autocommit                                                    | Enable autocommit feature for DML commands. The default is 'False'.                                                                                                                                                    |
+| --dry-run                                                            | Run schemachange in dry run mode. The default is 'False'.                                                                                                                                                              |
+| --query-tag                                                          | A string to include in the QUERY_TAG that is attached to every SQL statement executed.                                                                                                                                 |
 
 ##### render
 
@@ -325,7 +340,7 @@ usage: schemachange render [-h] \
 ```
 
 | Parameter                                          | Description                                                                                                                               |
-|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | --config-folder CONFIG_FOLDER                      | The folder to look in for the schemachange-config.yml file (the default is the current working directory)                                 |
 | -f ROOT_FOLDER, --root-folder ROOT_FOLDER          | The root folder for the database change scripts                                                                                           |
 | -m MODULES_FOLDER, --modules-folder MODULES_FOLDER | The modules folder for jinja macros and templates to be used across multiple scripts                                                      |
@@ -349,7 +364,7 @@ db-type: MYSQL
 connections-file-path: null
 
 # The root folder for the database change scripts
-root-folder: '/path/to/folder'
+root-folder: "/path/to/folder"
 
 # The modules folder for jinja macros and templates to be used across multiple scripts.
 modules-folder: null
@@ -362,10 +377,10 @@ create-change-history-table: false
 
 # Define values for the variables to replaced in change scripts. vars supplied via the command line will be merged into YAML-supplied vars
 vars:
-  var1: 'value1'
-  var2: 'value2'
+  var1: "value1"
+  var2: "value2"
   secrets:
-    var3: 'value3' # This is considered a secret and will not be displayed in any output
+    var3: "value3" # This is considered a secret and will not be displayed in any output
 
 # Enable autocommit feature for DML commands (the default is False)
 autocommit: false
@@ -377,7 +392,7 @@ verbose: false
 dry-run: false
 
 # A string to include in the QUERY_TAG that is attached to every SQL statement executed
-query-tag: 'QUERY_TAG'
+query-tag: "QUERY_TAG"
 ```
 
 ### connections-config.yml
@@ -394,26 +409,26 @@ Please see below sample YAML file to pass in `--connections-file-path` parameter
 Allowed parameters in https://docs.databricks.com/aws/en/dev-tools/python-sql-connector#connection-class and few other options
 
 ```yaml
-server_hostname: '<ws_id>.cloud.databricks.com'
-http_path: '/sql/1.0/warehouse/<warehouse_id>'
-access_token: '<access_token>'
-auth_type: '<oauth>'
+server_hostname: "<ws_id>.cloud.databricks.com"
+http_path: "/sql/1.0/warehouse/<warehouse_id>"
+access_token: "<access_token>"
+auth_type: "<oauth>"
 credentials_provider:
-  client_id: '<client_id>'
-  client_secret: '<client_secret>'
+  client_id: "<client_id>"
+  client_secret: "<client_secret>"
 password: <password>
 username: <username>
 session_configuration: # Spark session configuration parameters
   spark.sql.variable.substitute: true
 http_headers:
-  - !!python/tuple ['header_1', 'value_1']
-  - !!python/tuple ['header_2', 'value_2']
+  - !!python/tuple ["header_1", "value_1"]
+  - !!python/tuple ["header_2", "value_2"]
 catalog: <catalog>
 schema: <schema>
 use_cloud_fetch: false
-user_agent_entry: '<application_name>'
+user_agent_entry: "<application_name>"
 use_inline_params: false
-oauth_client_id: '<oauth_client_id>'
+oauth_client_id: "<oauth_client_id>"
 oauth_redirect_port: 443
 ```
 
@@ -422,10 +437,10 @@ oauth_redirect_port: 443
 Allowed parameters in https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html and few other options
 
 ```yaml
-database: '<database>'
-user: '<user>'
-password: '<password>'
-host: '<host>'
+database: "<database>"
+user: "<user>"
+password: "<password>"
+host: "<host>"
 port: 3306
 # ...others
 ```
@@ -435,11 +450,11 @@ port: 3306
 Allowed parameters in `oracledb/connection.py::connect` of Python Oracle connector package `oracledb`
 
 ```yaml
-user: '<user>'
-password: '<password>'
-host: '<host>'
-port: '<port>'
-service_name: '<service_name>'
+user: "<user>"
+password: "<password>"
+host: "<host>"
+port: "<port>"
+service_name: "<service_name>"
 # ...others
 ```
 
@@ -448,11 +463,11 @@ service_name: '<service_name>'
 Allowed parameters in https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS and few other options in `psycopg/connection.py::connect` of `psycopg` package
 
 ```yaml
-host: '<host>'
-port: '<port>'
-dbname: '<dbname>'
-user: '<user>'
-password: '<password>'
+host: "<host>"
+port: "<port>"
+dbname: "<dbname>"
+user: "<user>"
+password: "<password>"
 # ...others
 ```
 
@@ -461,15 +476,15 @@ password: '<password>'
 Allowed parameters in `snowflake/connector/connection.py::DEFAULT_CONFIGURATION` of `snowflake-connector-python` package
 
 ```yaml
-user: '<user>'
-password: '<password>'
-host: '<host>'
-port: '<port>'
-database: '<database>'
-schema: '<schema>'
-warehouse: '<warehouse>'
-role: '<role>'
-account: '<account>'
+user: "<user>"
+password: "<password>"
+host: "<host>"
+port: "<port>"
+database: "<database>"
+schema: "<schema>"
+warehouse: "<warehouse>"
+role: "<role>"
+account: "<account>"
 # ...others
 ```
 
@@ -478,10 +493,10 @@ account: '<account>'
 Allowed parameters in `pymssql/_pymssql.pyi::connect` of `pymssql` package
 
 ```yaml
-server: '<server>'
-user: '<user>'
-password: '<password>'
-database: '<database>'
+server: "<server>"
+user: "<user>"
+password: "<password>"
+database: "<database>"
 # ...others
 ```
 
@@ -513,17 +528,17 @@ Return the value of the environmental variable if it exists, otherwise raise an 
 
 In order to run schemachange you must have the following:
 
-* You will need to have a recent version of python 3 installed
-* You will need to create the change history table used by schemachange in the database (
+- You will need to have a recent version of python 3 installed
+- You will need to create the change history table used by schemachange in the database (
   see [Change History Table](#change-history-table) above for more details)
-    * First, you will need to create a database/catalog to store your change history table (schemachange will not help you with
-      this).
-    * Second, you will need to create the change history schema and table. You can do this manually (
-      see [Change History Table](#change-history-table) above for the DDL) or have schemachange create them by running
-      it with the `--create-change-history-table` parameter (just make sure the user you're running
-      schemachange with has privileges to create a schema and table in that database)
-* You will need to create (or choose) a user account that has privileges to apply the changes in your change script
-    * Don't forget that this user also needs the SELECT and INSERT privileges on the change history table
+  - First, you will need to create a database/catalog to store your change history table (schemachange will not help you with
+    this).
+  - Second, you will need to create the change history schema and table. You can do this manually (
+    see [Change History Table](#change-history-table) above for the DDL) or have schemachange create them by running
+    it with the `--create-change-history-table` parameter (just make sure the user you're running
+    schemachange with has privileges to create a schema and table in that database)
+- You will need to create (or choose) a user account that has privileges to apply the changes in your change script
+  - Don't forget that this user also needs the SELECT and INSERT privileges on the change history table
 
 ### Running the Script
 
@@ -557,7 +572,8 @@ python -m build
 pip install dist/db_schemachange-*-py3-none-any.whl
 
 # Or install via PyPI
-pip install --upgrade db-schemachange
+pip install --upgrade "db-schemachange[all]" # Install the package with all connectors
+pip install --upgrade "db-schemachange[databricks]" # Or install the package with specific connector
 
 # Run the command
 schemachange [subcommand] [-h] \
@@ -589,7 +605,7 @@ docker run -it --rm \
   --name schemachange-script \
   -v "$PWD":/usr/src/schemachange \
   -w /usr/src/schemachange \
-  python:3 /bin/bash -c "pip install --upgrade db-schemachange && schemachange [subcommand] [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [--query-tag QUERY_TAG] [-v] [-ac] [--dry-run]"
+  python:3 /bin/bash -c "pip install --upgrade 'db-schemachange[all]' && schemachange [subcommand] [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [--query-tag QUERY_TAG] [-v] [-ac] [--dry-run]"
 ```
 
 ## Maintainers
