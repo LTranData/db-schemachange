@@ -478,8 +478,6 @@ Allowed parameters in `snowflake/connector/connection.py::DEFAULT_CONFIGURATION`
 ```yaml
 user: "<user>"
 password: "<password>"
-host: "<host>"
-port: "<port>"
 database: "<database>"
 schema: "<schema>"
 warehouse: "<warehouse>"

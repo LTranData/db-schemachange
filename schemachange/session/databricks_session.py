@@ -103,9 +103,9 @@ class DatabricksSession(BaseSession):
     def reset_session(self):
         reset_query = []
         if self.catalog:
-            reset_query.append(f"USE CATALOG IDENTIFIER('{self.catalog}')")
+            reset_query.append(f"USE CATALOG IDENTIFIER('{self.catalog}');")
         if self.schema:
-            reset_query.append(f"USE SCHEMA IDENTIFIER('{self.schema}')")
+            reset_query.append(f"USE SCHEMA IDENTIFIER('{self.schema}');")
 
         if reset_query:
             self.execute_query(query="\n".join(reset_query))

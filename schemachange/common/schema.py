@@ -261,7 +261,10 @@ class SnowflakeConnectorArgsSchema(Schema):
     ocsp_fail_open = fields.Boolean(**OPTIONAL_ARGS)
     inject_client_pause = fields.Integer(**OPTIONAL_ARGS)
     session_parameters = fields.Dict(
-        keys=fields.String(), values=fields.Raw(), **OPTIONAL_ARGS
+        keys=fields.String(),
+        values=fields.Raw(),
+        load_default={"MULTI_STATEMENT_COUNT": "0"},
+        **OPTIONAL_ARGS
     )
     autocommit = fields.Boolean(**OPTIONAL_ARGS)
     client_session_keep_alive = fields.Boolean(**OPTIONAL_ARGS)
