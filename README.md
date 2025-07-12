@@ -1,6 +1,6 @@
 # db-schemachange
 
-[![pytest](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml/badge.svg)](https://github.com/lam1051999/db-schemachange/actions/workflows/master-pytest.yml)
+[![pytest](https://github.com/LTranData/db-schemachange/actions/workflows/master-pytest.yml/badge.svg)](https://github.com/LTranData/db-schemachange/actions/workflows/master-pytest.yml)
 [![PyPI](https://img.shields.io/pypi/v/db-schemachange.svg)](https://pypi.org/project/db-schemachange)
 
 ## Overview
@@ -610,7 +610,7 @@ docker run -it --rm \
 
 ## Maintainers
 
-- Lam Tran (@lam1051999)
+- Lam Tran (@LTranData)
 
 ## Demo
 

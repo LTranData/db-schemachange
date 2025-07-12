@@ -39,7 +39,7 @@ def parse_cli_args(args) -> Dict:
     parser = argparse.ArgumentParser(
         prog="schemachange",
         description="Apply schema changes to a database. Full readme at "
-        "https://github.com/lam1051999/db-schemachange",
+        "https://github.com/LTranData/db-schemachange",
         formatter_class=argparse.RawTextHelpFormatter,
     )
 

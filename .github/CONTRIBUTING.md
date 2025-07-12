@@ -7,7 +7,7 @@ operating environment, db-schemachange version and python version. Whenever poss
 also include a brief, self-contained code example that demonstrates the problem.
 
 We have
-included [issue templates](https://github.com/lam1051999/db-schemachange/issues/new/choose) for reporting bugs,
+included [issue templates](https://github.com/LTranData/db-schemachange/issues/new/choose) for reporting bugs,
 requesting features and seeking clarifications. Choose the appropriate issue template to contribute to the repository.
 
 ## Contributing code
@@ -24,7 +24,7 @@ Thank you for your interest in contributing code to db-schemachange!
 ### Guide to contributing to schemachange
 
 1. If you are a first-time contributor
-    + Go to [lam1051999/db-schemachange](https://github.com/lam1051999/db-schemachange) and click the "fork" button to
+    + Go to [LTranData/db-schemachange](https://github.com/LTranData/db-schemachange) and click the "fork" button to
       create your own copy of the project.
     + [Clone](https://github.com/git-guides/git-clone) the project to your local computer
 
@@ -43,7 +43,7 @@ Thank you for your interest in contributing code to db-schemachange!
     + Add upstream repository:
 
     ```shell
-    git remote add upstream https://github.com/lam1051999/db-schemachange
+    git remote add upstream https://github.com/LTranData/db-schemachange
     ```
 
     + Now, `git remote -v` will show two [remote](https://github.com/git-guides/git-remote) repositories named:
