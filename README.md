@@ -39,6 +39,7 @@ pip install --upgrade "db-schemachange[databricks]" # Install the package with D
   - [Versioned Script Naming](#versioned-script-naming)
   - [Repeatable Script Naming](#repeatable-script-naming)
   - [Always Script Naming](#always-script-naming)
+  - [Rollback Script Naming](#rollback-script-naming)
   - [Script Requirements](#script-requirements)
   - [Using Variables in Scripts](#using-variables-in-scripts)
     - [Secrets filtering](#secrets-filtering)
