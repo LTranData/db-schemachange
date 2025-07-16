@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Dict, Any
 
 from schemachange.common.utils import get_not_none_key_value, load_yaml_config
 from schemachange.config.base import BaseConfig, SubCommand
@@ -49,7 +49,7 @@ class DeployConfig(BaseConfig):
             **kwargs,
         )
 
-    def get_session_kwargs(self) -> dict:
+    def get_session_kwargs(self) -> Dict[str, Any]:
         session_kwargs = {
             "change_history_table": self.change_history_table,
             "autocommit": self.autocommit,

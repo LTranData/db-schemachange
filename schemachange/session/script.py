@@ -59,6 +59,23 @@ class VersionedScript(Script):
 
 
 @dataclasses.dataclass(frozen=True)
+class RollbackScript(Script):
+    pattern: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(RB)(?P<version>.+?)?__(?P<description>.+?)\.", re.IGNORECASE
+    )
+    type: ClassVar[Literal["RB"]] = "RB"
+    version: str
+
+    @classmethod
+    def from_path(cls: T, file_path: Path, **kwargs) -> T:
+        name_parts = cls.pattern.search(file_path.name.strip())
+
+        return super().from_path(
+            file_path=file_path, version=name_parts.group("version")
+        )
+
+
+@dataclasses.dataclass(frozen=True)
 class RepeatableScript(Script):
     pattern: ClassVar[re.Pattern[str]] = re.compile(
         r"^(R)__(?P<description>.+?)\.", re.IGNORECASE

@@ -264,7 +264,7 @@ class SnowflakeConnectorArgsSchema(Schema):
         keys=fields.String(),
         values=fields.Raw(),
         load_default={"MULTI_STATEMENT_COUNT": "0"},
-        **OPTIONAL_ARGS
+        **OPTIONAL_ARGS,
     )
     autocommit = fields.Boolean(**OPTIONAL_ARGS)
     client_session_keep_alive = fields.Boolean(**OPTIONAL_ARGS)
@@ -363,24 +363,43 @@ class ConfigArgsSchema(Schema):
     script_path = fields.String(**OPTIONAL_ARGS)
     log_level = fields.Integer(**OPTIONAL_ARGS)
     query_tag = fields.String(**OPTIONAL_ARGS)
+    batch_id = fields.String(**OPTIONAL_ARGS)
 
     @validates_schema()
     def validate_args(self, data, **kwargs):
         db_type = data.get("db_type")
         connections_file_path = data.get("connections_file_path")
         subcommand = data.get("subcommand")
+        batch_id = data.get("batch_id")
+        script_path = data.get("script_path")
+        error_messages = []
 
-        # For deploy, 'db_type' and 'connections_file_path' are required
-        if subcommand == SubCommand.DEPLOY:
-            error_messages = []
+        if subcommand == SubCommand.DEPLOY or subcommand == SubCommand.ROLLBACK:
             if not db_type:
                 error_messages.append(
-                    "'db_type' config is missing. Please specify either in CLI parameters or YAML config file"
+                    "'db_type' config is missing for deploy command. "
+                    "Please specify either in CLI parameters or YAML config file"
                 )
             if not connections_file_path:
                 error_messages.append(
-                    "'connections_file_path' config is missing. Please specify either in CLI parameters or YAML config file"
+                    "'connections_file_path' config is missing for deploy command. "
+                    "Please specify either in CLI parameters or YAML config file"
                 )
 
-            if error_messages:
-                raise exceptions.ValidationError()
+            if subcommand == SubCommand.ROLLBACK:
+                if not batch_id:
+                    error_messages.append(
+                        "'batch_id' config is missing for rollback command. "
+                        "Please specify in CLI parameters"
+                    )
+        elif subcommand == SubCommand.RENDER:
+            if not script_path:
+                error_messages.append(
+                    "'script_path' config is missing for render command. "
+                    "Please specify in CLI parameters"
+                )
+        else:
+            error_messages.append(f"'subcommand' should be one of {SubCommand.items()}")
+
+        if error_messages:
+            raise exceptions.ValidationError(message=error_messages)
