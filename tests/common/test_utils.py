@@ -293,6 +293,7 @@ def test_get_connect_kwargs_redundant_param():
         "param3": "value3",
         "param4": "value4",
     }
+    raise Exception("Error")
     with pytest.raises(exceptions.ValidationError) as excinfo:
         get_connect_kwargs(connections_info, MockSchema)
     assert "{'param4': ['Unknown field.']}" in str(excinfo.value)
