@@ -33,6 +33,6 @@ def get_db_session(
 
         db_session = SQLServerSession(logger=logger, session_kwargs=session_kwargs)
     else:
-        raise DatabaseType.validate_value(attr="db_type", value=db_type)
+        DatabaseType.validate_value(attr="db_type", value=db_type)
 
     return db_session

@@ -43,7 +43,7 @@ def test_render():
         "script_name.py",
         SubCommand.DEPLOY,
         "--config-folder",
-        f"{TEST_DIR}/resource",
+        str(TEST_DIR / "resource"),
         "--config-file-name",
         "valid_config_file.yml",
         "--root-folder",

@@ -8,8 +8,6 @@ on:
   workflow_dispatch:
 
   pull_request:
-    types:
-      - labeled
     branches:
       - develop
   
@@ -25,7 +23,7 @@ jobs:
         os: ["ubuntu-latest"]
         python-version: ["3.12"]
     runs-on: ${{ matrix.os }}
-    if: ${{ github.event.label.name == 'ci-run-tests' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}

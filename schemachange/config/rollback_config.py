@@ -11,8 +11,8 @@ from schemachange.session.base import DatabaseType
 
 
 @dataclasses.dataclass(frozen=True)
-class DeployConfig(BaseConfig):
-    subcommand: Literal["deploy"] = SubCommand.DEPLOY
+class RollbackConfig(BaseConfig):
+    subcommand: Literal["rollback"] = SubCommand.ROLLBACK
     connections_file_path: Path | None = None
     change_history_table: ChangeHistoryTable | None = dataclasses.field(
         default_factory=ChangeHistoryTable
@@ -22,6 +22,7 @@ class DeployConfig(BaseConfig):
     dry_run: bool = False
     db_type: str | None = None
     query_tag: str | None = None
+    batch_id: str | None = None
 
     @classmethod
     def factory(
@@ -30,6 +31,7 @@ class DeployConfig(BaseConfig):
         change_history_table: str | None = None,
         db_type: str | None = None,
         query_tag: str | None = None,
+        batch_id: str | None = None,
         **kwargs,
     ):
         if "subcommand" in kwargs:
@@ -41,11 +43,12 @@ class DeployConfig(BaseConfig):
         )
 
         return super().factory(
-            subcommand=SubCommand.DEPLOY,
+            subcommand=SubCommand.ROLLBACK,
             config_file_path=config_file_path,
             change_history_table=change_history_table,
             db_type=db_type,
             query_tag=query_tag,
+            batch_id=batch_id,
             **kwargs,
         )
 

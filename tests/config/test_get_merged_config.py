@@ -16,7 +16,7 @@ from tests.conftest import TEST_DIR, mock_structlog_logger
         "script_name.py",
         SubCommand.DEPLOY,
         "--config-folder",
-        f"{TEST_DIR}/resource",
+        str(TEST_DIR / "resource"),
         "--config-file-name",
         "valid_config_file.yml",
     ],
@@ -26,7 +26,7 @@ def test_get_merged_config():
         data = get_merged_config(logger=mock_logger)
         assert data.__dict__ == {
             "subcommand": SubCommand.DEPLOY,
-            "config_file_path": Path(f"{TEST_DIR}/resource/valid_config_file.yml"),
+            "config_file_path": TEST_DIR / "resource" / "valid_config_file.yml",
             "root_folder": Path("."),
             "modules_folder": None,
             "config_vars": {
@@ -36,9 +36,9 @@ def test_get_merged_config():
             },
             "secrets": {"value3"},
             "log_level": 20,
-            "connections_file_path": Path(
-                f"{TEST_DIR}/resource/connections_config_file.yml"
-            ),
+            "connections_file_path": TEST_DIR
+            / "resource"
+            / "connections_config_file.yml",
             "change_history_table": ChangeHistoryTable(
                 table_name="CHANGE_HISTORY", schema_name=None, database_name="METADATA"
             ),
@@ -56,7 +56,7 @@ def test_get_merged_config():
         "script_name.py",
         SubCommand.DEPLOY,
         "--config-folder",
-        f"{TEST_DIR}/resource",
+        str(TEST_DIR / "resource"),
         "--config-file-name",
         "invalid_config_file.yml",
     ],

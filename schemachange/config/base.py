@@ -22,11 +22,12 @@ T = TypeVar("T", bound="BaseConfig")
 class SubCommand(BaseEnum):
     DEPLOY = "deploy"
     RENDER = "render"
+    ROLLBACK = "rollback"
 
 
 @dataclasses.dataclass(frozen=True)
 class BaseConfig(ABC):
-    subcommand: Literal["deploy", "render"]
+    subcommand: Literal["deploy", "render", "rollback"]
     config_file_path: Path | None = None
     root_folder: Path | None = Path(".")
     modules_folder: Path | None = None
@@ -37,7 +38,7 @@ class BaseConfig(ABC):
     @classmethod
     def factory(
         cls,
-        subcommand: Literal["deploy", "render"],
+        subcommand: Literal["deploy", "render", "rollback"],
         config_file_path: Path,
         root_folder: Path | str | None = Path("."),
         modules_folder: Path | str | None = None,

@@ -49,6 +49,7 @@ pip install --upgrade "db-schemachange[databricks]" # Install the package with D
     - [CLI usage](#cli-usage)
       - [deploy](#deploy)
       - [render](#render)
+      - [rollback](#rollback)
     - [YAML config file](#yaml-config-file)
   - [connections-config.yml](#connections-configyml)
 - [Authentication](#authentication)
@@ -158,6 +159,16 @@ e.g.
 
 This type of change script is useful for an environment set up after cloning. Always scripts are applied always last.
 
+### Rollback Script Naming
+
+Rollback script supports reverting database changes after a failed deployment. The script name must follow this pattern: `RB_[V<version>|R|A]__Some_description.sql`. In other words, the Rollback filename should be `RB_<scrip_name>` where `<scrip_name>` is one of the three above script types.
+
+e.g.
+
+- RB_V0.0.1\_\_CREATE_TABLE.SQL
+- RB_R\_\_CREATE_VIEW.SQL
+- RB_A\_\_ASSIGN_ROLES.SQL
+
 ### Script Requirements
 
 `db-schemachange` is designed to be very lightweight and not impose too many limitations. Each change script can have any
@@ -248,13 +259,23 @@ The structure of the `CHANGE_HISTORY` table is as follows:
 | SCRIPT_TYPE    | VARCHAR(1000) | V                          |
 | CHECKSUM       | VARCHAR(1000) | 38e5ba03b1a6d2...          |
 | EXECUTION_TIME | BIGINT        | 4                          |
-| STATUS         | VARCHAR(1000) | Success                    |
+| STATUS         | VARCHAR(1000) | SUCCESS                    |
+| BATCH_ID       | VARCHAR(1000) | 38e5ba03b1a6d2...          |
+| BATCH_STATUS   | VARCHAR(1000) | SUCCESS                    |
 | INSTALLED_BY   | VARCHAR(1000) | DATABASE_USER              |
 | INSTALLED_ON   | TIMESTAMP     | 2020-03-17 12:54:33.123    |
 
+There is a specific BATCH_ID associated with each deployment.
+
 A new row will be added to this table every time a change script has been applied to the database. `db-schemachange` will use
 this table to identify which changes have been applied to the database and will not apply the same version more than
-once.
+once, with BATCH_STATUS = IN_PROGRESS.
+
+After all scripts are applied, the BATCH_STATUS will be updated to SUCCESS. If any of the scripts failed, the deployment stopped and
+BATCH_STATUS will be set to FAILED.
+
+If you are running a `rollback` command, each script was rolled back will be updated with STATUS = ROLLED_BACK.
+After all scripts are reverted, the BATCH_STATUS is set to ROLLED_BACK. If any of the rollback scripts failed, the BATCH_STATUS will be set to ROLLED_BACK_FAILED.
 
 Here is the current schema DDL for the change history table (found in the [schemachange/cli.py](schemachange/cli.py)
 script), in case you choose to create it manually and not use the `--create-change-history-table` parameter:
@@ -269,6 +290,8 @@ CREATE TABLE IF NOT EXISTS METADATA.[SCHEMACHANGE].CHANGE_HISTORY
     CHECKSUM VARCHAR(1000),
     EXECUTION_TIME BIGINT,
     STATUS VARCHAR(1000),
+    BATCH_ID VARCHAR(1000),
+    BATCH_STATUS VARCHAR(1000),
     INSTALLED_BY VARCHAR(1000),
     INSTALLED_ON TIMESTAMP
 )
@@ -346,6 +369,28 @@ usage: schemachange render [-h] \
 | -m MODULES_FOLDER, --modules-folder MODULES_FOLDER | The modules folder for jinja macros and templates to be used across multiple scripts                                                      |
 | --vars VARS                                        | Define values for the variables to replaced in change scripts, given in JSON format (e.g. {"variable1": "value1", "variable2": "value2"}) |
 | -v, --verbose                                      | Display verbose debugging details during execution (the default is False)                                                                 |
+
+##### rollback
+
+The command is the same as the `deploy` command, plus an additional required parameter `--batch-id` for the ID of the batch that we need to revert the changes. The batch ID information is only available through CLI, not the YAML config file, since the config file is more suitable for static configurations.
+
+```bash
+usage: schemachange deploy [-h] \
+  [--config-folder CONFIG_FOLDER] \
+  [--config-file-name CONFIG_FILE_NAME] \
+  [-f ROOT_FOLDER] \
+  [-m MODULES_FOLDER] \
+  [--vars VARS] \
+  [--db-type DB_TYPE] \
+  [--connections-file-path CONNECTIONS_FILE_PATH] \
+  [-c CHANGE_HISTORY_TABLE] \
+  [--create-change-history-table] \
+  [--query-tag QUERY_TAG] \
+  [-v] \
+  [-ac] \
+  [--dry-run] \
+  [--batch-id BATCH_ID]
+```
 
 #### YAML config file
 

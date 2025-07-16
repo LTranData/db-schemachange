@@ -16,6 +16,7 @@ from schemachange.config.base import SubCommand
 from schemachange.config.deploy_config import DeployConfig
 from schemachange.config.parse_cli_args import parse_cli_args
 from schemachange.config.render_config import RenderConfig
+from schemachange.config.rollback_config import RollbackConfig
 
 
 def get_yaml_config_kwargs(config_file_path: Optional[Path]) -> Dict:
@@ -37,7 +38,7 @@ def get_yaml_config_kwargs(config_file_path: Optional[Path]) -> Dict:
 
 def get_merged_config(
     logger: structlog.BoundLogger,
-) -> Union[DeployConfig, RenderConfig]:
+) -> Union[DeployConfig, RenderConfig, RollbackConfig]:
     cli_kwargs = parse_cli_args(sys.argv[1:])
     logger.debug("cli_kwargs", **cli_kwargs)
 
@@ -88,7 +89,7 @@ def get_merged_config(
     kwargs = ConfigArgsSchema().load(kwargs)
     if cli_kwargs["subcommand"] == SubCommand.DEPLOY:
         return DeployConfig.factory(**kwargs)
+    elif cli_kwargs["subcommand"] == SubCommand.ROLLBACK:
+        return RollbackConfig.factory(**kwargs)
     elif cli_kwargs["subcommand"] == SubCommand.RENDER:
         return RenderConfig.factory(**kwargs)
-    else:
-        raise Exception(f"unhandled subcommand: {cli_kwargs['subcommand'] }")
