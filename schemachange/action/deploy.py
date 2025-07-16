@@ -3,14 +3,19 @@ from __future__ import annotations
 import hashlib
 import re
 from typing import List
+import uuid
 
 import structlog
 
 from schemachange.common.utils import validate_script_content
 from schemachange.config.deploy_config import DeployConfig
 from schemachange.jinja.jinja_template_processor import JinjaTemplateProcessor
-from schemachange.session.base import BaseSession
-from schemachange.session.script import get_all_scripts_recursively
+from schemachange.session.base import BaseSession, ApplyStatus
+from schemachange.session.script import (
+    get_all_scripts_recursively,
+    ScriptType,
+    DEPLOYABLE_SCRIPT_TYPES,
+)
 
 
 def alphanum_convert(text: str):
@@ -37,9 +42,11 @@ def sorted_alphanumeric(data):
 def deploy(
     config: DeployConfig, db_session: BaseSession, logger: structlog.BoundLogger
 ):
+    batch_id = str(uuid.uuid4())
     logger.info(
-        "starting deploy",
+        "Starting deploy",
         dry_run=config.dry_run,
+        batch_id=batch_id,
         change_history_table=db_session.change_history_table.fully_qualified,
         autocommit=db_session.autocommit,
         db_type=db_session.db_type,
@@ -65,13 +72,25 @@ def deploy(
         # Sort scripts such that versioned scripts get applied first and then the repeatable ones.
         all_script_names_sorted = (
             sorted_alphanumeric(
-                [script for script in all_script_names if script[0] == "v"]
+                [
+                    script
+                    for script in all_script_names
+                    if script[0] == ScriptType.VERSIONED.lower()
+                ]
             )
             + sorted_alphanumeric(
-                [script for script in all_script_names if script[0] == "r"]
+                [
+                    script
+                    for script in all_script_names
+                    if script[0] == ScriptType.REPEATABLE.lower()
+                ]
             )
             + sorted_alphanumeric(
-                [script for script in all_script_names if script[0] == "a"]
+                [
+                    script
+                    for script in all_script_names
+                    if script[0] == ScriptType.ALWAYS.lower()
+                ]
             )
         )
 
@@ -81,6 +100,10 @@ def deploy(
         # Loop through each script in order and apply any required changes
         for script_name in all_script_names_sorted:
             script = all_scripts[script_name]
+
+            if script.type not in DEPLOYABLE_SCRIPT_TYPES:
+                continue
+
             script_log = logger.bind(
                 # The logging keys will be sorted alphabetically.
                 # Appending 'a' is a lazy way to get the script name to appear at the start of the log
@@ -100,7 +123,7 @@ def deploy(
 
             # Apply a versioned-change script only if the version is newer than the most recent change in the database
             # Apply any other scripts, i.e. repeatable scripts, irrespective of the most recent change in the database
-            if script.type == "V":
+            if script.type == ScriptType.VERSIONED:
                 script_metadata = versioned_scripts.get(script.name)
 
                 if (
@@ -128,7 +151,7 @@ def deploy(
                         continue
 
             # Apply only R scripts where the checksum changed compared to the last execution of snowchange
-            if script.type == "R":
+            if script.type == ScriptType.REPEATABLE:
                 # check if R file was already executed
                 if (
                     r_scripts_checksum is not None
@@ -151,10 +174,14 @@ def deploy(
                 script_content=content,
                 dry_run=config.dry_run,
                 logger=script_log,
+                batch_id=batch_id,
             )
 
             scripts_applied += 1
 
+        db_session.update_batch_status(
+            batch_id=batch_id, batch_status=ApplyStatus.SUCCESS
+        )
         logger.info(
             "Completed successfully",
             scripts_applied=scripts_applied,
@@ -162,5 +189,8 @@ def deploy(
         )
         db_session.close()
     except Exception as e:
+        db_session.update_batch_status(
+            batch_id=batch_id, batch_status=ApplyStatus.FAILED
+        )
         db_session.close()
         raise Exception("Deploy failed") from e

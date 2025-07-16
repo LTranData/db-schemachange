@@ -252,7 +252,7 @@ def test_validate_config_vars_empty_dict():
 
 def test_load_yaml_config():
     os.environ["TEST_ENV_VAR"] = "data"
-    config_file_path = Path(f"{TEST_DIR}/resource/config_file.yml")
+    config_file_path = TEST_DIR / "resource" / "config_file.yml"
     assert load_yaml_config(config_file_path=config_file_path) == {
         "prop_1": "value_1",
         "prop_2": {"sub_prop_1": "sub_value_1", "sub_prop_2": "sub_value_2"},

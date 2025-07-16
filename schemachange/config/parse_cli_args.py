@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from argparse import ArgumentParser
 import json
 import logging
 import sys
@@ -33,6 +34,56 @@ class DeprecateConnectionArgAction(argparse.Action):
             sys.stderr.write(self.help + "\n")
         self.call_count += 1
         setattr(namespace, self.dest, values)
+
+
+def add_common_deploy_arguments(parser: ArgumentParser) -> None:
+    parser.register("action", "deprecate", DeprecateConnectionArgAction)
+    parser.add_argument(
+        "--db-type",
+        type=str,
+        help="Database type that schemachange run against",
+        required=False,
+        choices=DatabaseType.items(),
+    )
+    parser.add_argument(
+        "--connections-file-path",
+        type=str,
+        help="File path to connections-config.yml",
+        required=False,
+    )
+    parser.add_argument(
+        "-c",
+        "--change-history-table",
+        type=str,
+        help="Used to override the default name of the change history table (the default is "
+        "METADATA.SCHEMACHANGE.CHANGE_HISTORY)",
+        required=False,
+    )
+    parser.add_argument(
+        "--create-change-history-table",
+        action="store_const",
+        const=True,
+        default=None,
+        help="Create the change history schema and table, if they do not exist (the default is False)",
+        required=False,
+    )
+    parser.add_argument(
+        "-ac",
+        "--autocommit",
+        action="store_const",
+        const=True,
+        default=None,
+        help="Enable autocommit feature for DML commands (the default is False)",
+        required=False,
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_const",
+        const=True,
+        default=None,
+        help="Run schemachange in dry run mode (the default is False)",
+        required=False,
+    )
 
 
 def parse_cli_args(args) -> Dict:
@@ -93,59 +144,26 @@ def parse_cli_args(args) -> Dict:
 
     subcommands = parser.add_subparsers(dest="subcommand")
     parser_deploy = subcommands.add_parser(SubCommand.DEPLOY, parents=[parent_parser])
-
-    parser_deploy.register("action", "deprecate", DeprecateConnectionArgAction)
-    parser_deploy.add_argument(
-        "--db-type",
-        type=str,
-        help="Database type that schemachange run against",
-        required=False,
-        choices=DatabaseType.items(),
-    )
-    parser_deploy.add_argument(
-        "--connections-file-path",
-        type=str,
-        help="File path to connections-config.yml",
-        required=False,
-    )
-    parser_deploy.add_argument(
-        "-c",
-        "--change-history-table",
-        type=str,
-        help="Used to override the default name of the change history table (the default is "
-        "METADATA.SCHEMACHANGE.CHANGE_HISTORY)",
-        required=False,
-    )
-    parser_deploy.add_argument(
-        "--create-change-history-table",
-        action="store_const",
-        const=True,
-        default=None,
-        help="Create the change history schema and table, if they do not exist (the default is False)",
-        required=False,
-    )
-    parser_deploy.add_argument(
-        "-ac",
-        "--autocommit",
-        action="store_const",
-        const=True,
-        default=None,
-        help="Enable autocommit feature for DML commands (the default is False)",
-        required=False,
-    )
-    parser_deploy.add_argument(
-        "--dry-run",
-        action="store_const",
-        const=True,
-        default=None,
-        help="Run schemachange in dry run mode (the default is False)",
-        required=False,
+    parser_rollback = subcommands.add_parser(
+        SubCommand.ROLLBACK, parents=[parent_parser]
     )
     parser_render = subcommands.add_parser(
         SubCommand.RENDER,
         description="Renders a script to the console, used to check and verify jinja output from scripts.",
         parents=[parent_parser],
     )
+
+    # Set deploy subcommand arguments
+    add_common_deploy_arguments(parser=parser_deploy)
+    # Set rollback subcommand arguments
+    add_common_deploy_arguments(parser=parser_rollback)
+    parser_rollback.add_argument(
+        "--batch-id",
+        type=str,
+        help="ID of the deployed batch that needs to be rolled back",
+        required=True,  # YAML file is for static config, this rollback argument should only be available through CLI
+    )
+    # Set render subcommand arguments
     parser_render.add_argument(
         "--script-path", type=str, help="Path to the script to render"
     )

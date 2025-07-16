@@ -11,7 +11,14 @@ import structlog
 from schemachange.common.const import DEFAULT_DATETIME_FORMAT
 from schemachange.common.utils import BaseEnum
 from schemachange.config.change_history_table import ChangeHistoryTable
-from schemachange.session.script import AlwaysScript, RepeatableScript, VersionedScript
+from schemachange.session.script import (
+    AlwaysScript,
+    RepeatableScript,
+    VersionedScript,
+    RollbackScript,
+    ScriptType,
+    DEPLOYABLE_SCRIPT_TYPES,
+)
 
 
 class DDL(BaseEnum):
@@ -62,6 +69,14 @@ class DatabaseType(BaseEnum):
     @classmethod
     def get_no_schema_databases(cls):
         return [DatabaseType.MYSQL, DatabaseType.ORACLE]
+
+
+class ApplyStatus(BaseEnum):
+    IN_PROGRESS = "IN_PROGRESS"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+    ROLLED_BACK = "ROLLED_BACK"
+    ROLLED_BACK_FAILED = "ROLLED_BACK_FAILED"
 
 
 class Singleton(type):
@@ -217,6 +232,8 @@ class BaseSession(metaclass=Singleton):
                 CHECKSUM VARCHAR(1000),
                 EXECUTION_TIME BIGINT,
                 STATUS VARCHAR(1000),
+                BATCH_ID VARCHAR(1000),
+                BATCH_STATUS VARCHAR(1000),
                 INSTALLED_BY VARCHAR(1000),
                 INSTALLED_ON TIMESTAMP
             )
@@ -277,8 +294,9 @@ class BaseSession(metaclass=Singleton):
                 ORDER BY INSTALLED_ON DESC
             ) AS CHECKSUM
         FROM {self.change_history_table.fully_qualified}
-        WHERE SCRIPT_TYPE = 'R'
-            AND STATUS = 'Success'
+        WHERE SCRIPT_TYPE = '{ScriptType.REPEATABLE}'
+            AND STATUS = '{ApplyStatus.SUCCESS}'
+            AND BATCH_STATUS = '{ApplyStatus.SUCCESS}'
         """
         data = self.execute_query(query=dedent(query))
 
@@ -297,7 +315,9 @@ class BaseSession(metaclass=Singleton):
         query = f"""\
         SELECT VERSION, SCRIPT, CHECKSUM
         FROM {self.change_history_table.fully_qualified}
-        WHERE SCRIPT_TYPE = 'V'
+        WHERE SCRIPT_TYPE = '{ScriptType.VERSIONED}'
+            AND STATUS = '{ApplyStatus.SUCCESS}'
+            AND BATCH_STATUS = '{ApplyStatus.SUCCESS}'
         ORDER BY INSTALLED_ON DESC
         """
         data = self.execute_query(query=dedent(query))
@@ -320,11 +340,13 @@ class BaseSession(metaclass=Singleton):
 
     def log_change_script(
         self,
-        script: VersionedScript | RepeatableScript | AlwaysScript,
+        script: VersionedScript | RepeatableScript | AlwaysScript | RollbackScript,
         checksum: str,
         execution_time: int,
         status: str,
-    ):
+        batch_id: str,
+        batch_status: str,
+    ) -> None:
         apply_user = f"'{self.user}'" if self.user else "NULL"
         query = f"""\
             INSERT INTO {self.change_history_table.fully_qualified} (
@@ -335,6 +357,8 @@ class BaseSession(metaclass=Singleton):
                 CHECKSUM,
                 EXECUTION_TIME,
                 STATUS,
+                BATCH_ID,
+                BATCH_STATUS,
                 INSTALLED_BY,
                 INSTALLED_ON
             ) VALUES (
@@ -345,6 +369,8 @@ class BaseSession(metaclass=Singleton):
                 '{checksum}',
                 {execution_time},
                 '{status}',
+                '{batch_id}',
+                '{batch_status}',
                 {apply_user},
                 '{datetime.datetime.now().strftime(DEFAULT_DATETIME_FORMAT)}'
             )
@@ -353,10 +379,11 @@ class BaseSession(metaclass=Singleton):
 
     def apply_change_script(
         self,
-        script: VersionedScript | RepeatableScript | AlwaysScript,
+        script: VersionedScript | RepeatableScript | AlwaysScript | RollbackScript,
         script_content: str,
         dry_run: bool,
         logger: structlog.BoundLogger,
+        batch_id: str,
     ) -> None:
         if dry_run:
             logger.debug("Running in dry-run mode. Skipping execution")
@@ -365,7 +392,6 @@ class BaseSession(metaclass=Singleton):
         # Define a few other change related variables
         checksum = hashlib.sha224(script_content.encode("utf-8")).hexdigest()
         execution_time = 0
-        status = "Success"
 
         # Execute the contents of the script
         if len(script_content) > 0:
@@ -382,9 +408,54 @@ class BaseSession(metaclass=Singleton):
             end = time.time()
             execution_time = round(end - start)
 
-        self.log_change_script(
-            script=script,
-            checksum=checksum,
-            execution_time=execution_time,
-            status=status,
-        )
+        if script.type in DEPLOYABLE_SCRIPT_TYPES:
+            self.log_change_script(
+                script=script,
+                checksum=checksum,
+                execution_time=execution_time,
+                status=ApplyStatus.SUCCESS,
+                batch_id=batch_id,
+                batch_status=ApplyStatus.IN_PROGRESS,
+            )
+
+    def update_batch_status(self, batch_id: str, batch_status: str) -> None:
+        query = f"""\
+            UPDATE {self.change_history_table.fully_qualified}
+            SET BATCH_STATUS = '{batch_status}'
+            WHERE BATCH_ID = '{batch_id}'
+        """
+        self.execute_query(query=dedent(query))
+
+    def update_batch_script_status(
+        self,
+        script_name: str,
+        script_type: str,
+        checksum: str,
+        status: str,
+        batch_id: str,
+    ) -> None:
+        query = f"""\
+            UPDATE {self.change_history_table.fully_qualified}
+            SET STATUS = '{status}'
+            WHERE BATCH_ID = '{batch_id}'
+                AND SCRIPT = '{script_name}'
+                AND SCRIPT_TYPE = '{script_type}'
+                AND CHECKSUM = '{checksum}'
+        """
+        self.execute_query(query=dedent(query))
+
+    def get_batch_by_id(self, batch_id: str) -> List[Dict[str, str]]:
+        applied_script_types = [
+            f"'{item}'"
+            for item in ScriptType.items()
+            if item in DEPLOYABLE_SCRIPT_TYPES
+        ]
+        query = f"""\
+            SELECT SCRIPT, SCRIPT_TYPE, CHECKSUM, BATCH_ID, BATCH_STATUS
+            FROM {self.change_history_table.fully_qualified}
+            WHERE BATCH_ID = '{batch_id}'
+                AND SCRIPT_TYPE IN ({', '.join(applied_script_types)})
+                AND BATCH_STATUS != '{ApplyStatus.ROLLED_BACK}'
+            ORDER BY INSTALLED_ON DESC
+        """
+        return self.execute_query(query=dedent(query))
