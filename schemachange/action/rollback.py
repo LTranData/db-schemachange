@@ -25,15 +25,15 @@ def rollback(
         db_type=db_session.db_type,
     )
 
-    # try:
-    #     (
-    #         versioned_scripts,
-    #         r_scripts_checksum,
-    #         max_published_version,
-    #     ) = db_session.get_script_metadata(
-    #         create_change_history_table=config.create_change_history_table,
-    #         dry_run=config.dry_run,
-    #     )
+    try:
+        (
+            versioned_scripts,
+            r_scripts_checksum,
+            max_published_version,
+        ) = db_session.get_script_metadata(
+            create_change_history_table=config.create_change_history_table,
+            dry_run=config.dry_run,
+        )
 
     #     max_published_version = get_alphanum_key(max_published_version)
 
@@ -140,7 +140,7 @@ def rollback(
     #         scripts_applied=scripts_applied,
     #         scripts_skipped=scripts_skipped,
     #     )
-    #     db_session.close()
-    # except Exception as e:
-    #     db_session.close()
-    #     raise Exception("Deploy failed") from e
+        db_session.close()
+    except Exception as e:
+        db_session.close()
+        raise Exception("Deploy failed") from e
