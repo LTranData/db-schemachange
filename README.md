@@ -375,7 +375,7 @@ usage: schemachange render [-h] \
 The command is the same as the `deploy` command, plus an additional required parameter `--batch-id` for the ID of the batch that we need to revert the changes. The batch ID information is only available through CLI, not the YAML config file, since the config file is more suitable for static configurations.
 
 ```bash
-usage: schemachange deploy [-h] \
+usage: schemachange rollback [-h] \
   [--config-folder CONFIG_FOLDER] \
   [--config-file-name CONFIG_FILE_NAME] \
   [-f ROOT_FOLDER] \
