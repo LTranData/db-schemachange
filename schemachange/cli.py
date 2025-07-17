@@ -1,6 +1,4 @@
 import structlog
-import configparser
-from pathlib import Path
 
 from schemachange.action.deploy import deploy
 from schemachange.action.render import render
@@ -11,17 +9,10 @@ from schemachange.config.redact_config_secrets import redact_config_secrets
 from schemachange.session.session_factory import get_db_session
 
 module_logger = structlog.getLogger(__name__)
-ROOT_DIR = Path(__file__).parent.parent.resolve()
 
 
 def get_schemachange_version():
-    setup_file_path = ROOT_DIR / "setup.cfg"
-    config = configparser.RawConfigParser()
-    config.read(setup_file_path)
-
-    if "metadata" in config and "version" in config["metadata"]:
-        return config["metadata"]["version"]
-    return None
+    return "1.0.3"
 
 
 def main():
