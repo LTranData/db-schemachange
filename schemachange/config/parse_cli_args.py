@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import argparse
-from argparse import ArgumentParser
 import json
 import logging
 import sys
+from argparse import ArgumentParser
 from enum import Enum
 from typing import Dict
 

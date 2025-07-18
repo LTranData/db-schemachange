@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import hashlib
 import re
-from typing import List
 import uuid
+from typing import List
 
 import structlog
 
 from schemachange.common.utils import validate_script_content
 from schemachange.config.deploy_config import DeployConfig
 from schemachange.jinja.jinja_template_processor import JinjaTemplateProcessor
-from schemachange.session.base import BaseSession, ApplyStatus
+from schemachange.session.base import ApplyStatus, BaseSession
 from schemachange.session.script import (
-    get_all_scripts_recursively,
-    ScriptType,
     DEPLOYABLE_SCRIPT_TYPES,
+    ScriptType,
+    get_all_scripts_recursively,
 )
 
 
@@ -50,6 +50,7 @@ def deploy(
         change_history_table=db_session.change_history_table.fully_qualified,
         autocommit=db_session.autocommit,
         db_type=db_session.db_type,
+        connections_info=db_session.connections_info,
     )
 
     try:

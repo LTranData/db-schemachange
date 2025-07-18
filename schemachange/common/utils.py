@@ -16,6 +16,7 @@ logger = structlog.getLogger(__name__)
 
 # Words with alphanumeric characters and underscores only
 identifier_pattern = re.compile(r"^[\w]+$")
+SECRET_KEYWORDS = ["SECRET", "PWD", "PASSWD", "PASSWORD", "TOKEN"]
 
 
 class BaseEnum:
@@ -49,6 +50,10 @@ def get_identifier_string(input_value: str, input_type: str) -> str | None:
         )
 
 
+def is_secret_key(key: str) -> bool:
+    return any([item in key.upper() for item in SECRET_KEYWORDS])
+
+
 def get_config_secrets(config_vars: Dict[str, Dict | str] | None) -> Set[str]:
     """Extracts all secret values from the vars attributes in config"""
 
@@ -74,7 +79,7 @@ def get_config_secrets(config_vars: Dict[str, Dict | str] | None) -> Set[str]:
                     extracted_secrets
                     | inner_extract_dictionary_secrets(value, child_of_secrets)
                 )
-            elif child_of_secrets or "SECRET" in key.upper():
+            elif child_of_secrets or is_secret_key(key=key):
                 extracted_secrets.add(value.strip())
 
         return extracted_secrets

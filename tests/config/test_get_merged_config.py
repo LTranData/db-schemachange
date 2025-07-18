@@ -34,7 +34,6 @@ def test_get_merged_config():
                 "var2": "value2",
                 "secrets": {"var3": "value3"},
             },
-            "secrets": {"value3"},
             "log_level": 20,
             "connections_file_path": TEST_DIR
             / "resource"
@@ -86,7 +85,6 @@ def test_get_merged_config_for_render():
             "root_folder": Path("."),
             "modules_folder": None,
             "config_vars": {},
-            "secrets": set(),
             "log_level": 20,
             "script_path": Path("tests/resource/render_script.sql"),
         }

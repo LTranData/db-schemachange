@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
-from typing import Literal, Dict, Any
+from typing import Any, Dict, Literal
 
 from schemachange.common.utils import get_not_none_key_value, load_yaml_config
 from schemachange.config.base import BaseConfig, SubCommand

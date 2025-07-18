@@ -4,16 +4,11 @@ import dataclasses
 import logging
 from abc import ABC
 from pathlib import Path
-from typing import Literal, TypeVar
+from typing import Any, Dict, Literal, TypeVar
 
 import structlog
 
-from schemachange.common.utils import (
-    BaseEnum,
-    get_config_secrets,
-    validate_config_vars,
-    validate_directory,
-)
+from schemachange.common.utils import BaseEnum, validate_config_vars, validate_directory
 
 logger = structlog.getLogger(__name__)
 T = TypeVar("T", bound="BaseConfig")
@@ -32,7 +27,6 @@ class BaseConfig(ABC):
     root_folder: Path | None = Path(".")
     modules_folder: Path | None = None
     config_vars: dict = dataclasses.field(default_factory=dict)
-    secrets: set[str] = dataclasses.field(default_factory=set)
     log_level: int = logging.INFO
 
     @classmethod
@@ -46,20 +40,12 @@ class BaseConfig(ABC):
         log_level: int = logging.INFO,
         **kwargs,
     ):
-        try:
-            secrets = get_config_secrets(config_vars)
-        except Exception as e:
-            raise Exception(
-                "config_vars did not parse correctly, please check its configuration"
-            ) from e
-
         return cls(
             subcommand=subcommand,
             config_file_path=config_file_path,
             root_folder=validate_directory(path=root_folder),
             modules_folder=validate_directory(path=modules_folder),
             config_vars=validate_config_vars(config_vars=config_vars),
-            secrets=secrets,
             log_level=log_level,
             **kwargs,
         )
@@ -72,3 +58,6 @@ class BaseConfig(ABC):
             )
 
         logger.info("Using variables", vars=self.config_vars)
+
+    def get_session_kwargs(self) -> Dict[str, Any]:
+        return {}

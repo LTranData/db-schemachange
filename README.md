@@ -196,17 +196,22 @@ finds any variable placeholders that haven't been replaced.
 
 While many CI/CD tools already have the capability to filter secrets, it is best that any tool also does not output
 secrets to the console or logs. Schemachange implements secrets filtering in a number of areas to ensure secrets are not
-writen to the console or logs. The only exception is the `render` command which will display secrets.
+writen to the console or logs.
 
-A secret is just a standard variable that has been tagged as a secret. This is determined using a naming convention and
-either of the following will tag a variable as a secret:
+A secret is either a standard variable that has been tagged as a secret or a parameter of connection config input that considered as a secret. This is determined using a naming convention and either of the following will tag a variable/conection parameter as a secret:
 
-1. The variable name has the word `secret` in it.
+1. The name has the word `secret`, `pwd`, `passwd`, `password`, or `token` in it.
    ```yaml
    config-version: 1
    vars:
      bucket_name: S3://...... # not a secret
      secret_key: 567576D8E # a secret
+   ```
+   ```yaml
+   password: asDqTT@!#12 # a secret
+   credentials_provider:
+     client_id: wq5e121f-k952-4002-942e-tt24c1tww452 # not a secret
+     client_secret: prtpw9c03tw2lwe3c89c2054lw2025tw9842 # a secret
    ```
 2. The variable is a child of a key named `secrets`.
    ```yaml

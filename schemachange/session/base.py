@@ -8,17 +8,18 @@ from typing import Any, Dict, List, Optional, Tuple
 import sqlparse
 import structlog
 
-from schemachange.common.const import DEFAULT_DATETIME_FORMAT
 from schemachange.common.utils import BaseEnum
 from schemachange.config.change_history_table import ChangeHistoryTable
 from schemachange.session.script import (
+    DEPLOYABLE_SCRIPT_TYPES,
     AlwaysScript,
     RepeatableScript,
-    VersionedScript,
     RollbackScript,
     ScriptType,
-    DEPLOYABLE_SCRIPT_TYPES,
+    VersionedScript,
 )
+
+DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
 class DDL(BaseEnum):
