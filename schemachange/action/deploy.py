@@ -54,6 +54,13 @@ def deploy(
     )
 
     try:
+        if config.force:
+            logger.info(
+                "Running aggressive deployment mode for versioned scripts",
+                from_version=config.from_version,
+                to_version=config.to_version,
+            )
+
         (
             versioned_scripts,
             r_scripts_checksum,
@@ -101,8 +108,9 @@ def deploy(
         # Loop through each script in order and apply any required changes
         for script_name in all_script_names_sorted:
             script = all_scripts[script_name]
+            script_type = script.type
 
-            if script.type not in DEPLOYABLE_SCRIPT_TYPES:
+            if script_type not in DEPLOYABLE_SCRIPT_TYPES:
                 continue
 
             script_log = logger.bind(
@@ -124,35 +132,51 @@ def deploy(
 
             # Apply a versioned-change script only if the version is newer than the most recent change in the database
             # Apply any other scripts, i.e. repeatable scripts, irrespective of the most recent change in the database
-            if script.type == ScriptType.VERSIONED:
+            if script_type == ScriptType.VERSIONED:
                 script_metadata = versioned_scripts.get(script.name)
+                script_version = script.version
 
-                if (
-                    max_published_version is not None
-                    and get_alphanum_key(script.version) <= max_published_version
-                ):
-                    if script_metadata is None:
+                if config.force:
+                    if (
+                        get_alphanum_key(script_version)
+                        < get_alphanum_key(config.from_version)
+                    ) or (
+                        get_alphanum_key(script_version)
+                        > get_alphanum_key(config.to_version)
+                    ):
                         script_log.debug(
-                            "Skipping versioned script because it's older than the most recently applied change",
-                            max_published_version=max_published_version,
+                            "Skipping versioned script because it's not in aggressive deployment version range",
+                            script_version=script_version,
                         )
                         scripts_skipped += 1
                         continue
-                    else:
-                        script_log.debug(
-                            "Script has already been applied",
-                            max_published_version=max_published_version,
-                        )
-                        if script_metadata["checksum"] != checksum_current:
-                            script_log.info(
-                                "Script checksum has drifted since application"
+                else:
+                    if (
+                        max_published_version is not None
+                        and get_alphanum_key(script_version) <= max_published_version
+                    ):
+                        if script_metadata is None:
+                            script_log.debug(
+                                "Skipping versioned script because it's older than the most recently applied change",
+                                max_published_version=max_published_version,
                             )
+                            scripts_skipped += 1
+                            continue
+                        else:
+                            script_log.debug(
+                                "Script has already been applied",
+                                max_published_version=max_published_version,
+                            )
+                            if script_metadata["checksum"] != checksum_current:
+                                script_log.info(
+                                    "Script checksum has drifted since application"
+                                )
 
-                        scripts_skipped += 1
-                        continue
+                            scripts_skipped += 1
+                            continue
 
             # Apply only R scripts where the checksum changed compared to the last execution of snowchange
-            if script.type == ScriptType.REPEATABLE:
+            if script_type == ScriptType.REPEATABLE:
                 # check if R file was already executed
                 if (
                     r_scripts_checksum is not None
@@ -176,6 +200,7 @@ def deploy(
                 dry_run=config.dry_run,
                 logger=script_log,
                 batch_id=batch_id,
+                force=config.force,
             )
 
             scripts_applied += 1

@@ -67,6 +67,7 @@ pip install --upgrade "db-schemachange[databricks]" # Install the package with D
   - [Running the Script](#running-the-script)
   - [Using Docker](#using-docker)
 - [Maintainers](#maintainers)
+- [Aggressive deployment](#aggressive-deployment)
 - [Demo](#demo)
 
 ## Project Structure
@@ -353,6 +354,9 @@ usage: schemachange deploy [-h] \
 | -ac, --autocommit                                                    | Enable autocommit feature for DML commands. The default is 'False'.                                                                                                                                                    |
 | --dry-run                                                            | Run schemachange in dry run mode. The default is 'False'.                                                                                                                                                              |
 | --query-tag                                                          | A string to include in the QUERY_TAG that is attached to every SQL statement executed.                                                                                                                                 |
+| --force                                                              | (Aggressive deployment mode) Force deploy specific versioned scripts. The default is 'False'                                                                                                                           |
+| --from-version                                                       | (Aggressive deployment mode) Start version of aggressive deployment                                                                                                                                                    |
+| --to-version                                                         | (Aggressive deployment mode) End version of aggressive deployment                                                                                                                                                      |
 
 ##### render
 
@@ -656,6 +660,17 @@ docker run -it --rm \
   -w /usr/src/schemachange \
   python:3 /bin/bash -c "pip install --upgrade 'db-schemachange[all]' && schemachange [subcommand] [-h] [--config-folder CONFIG_FOLDER] [--config-file-name CONFIG_FILE_NAME] [-f ROOT_FOLDER] [-m MODULES_FOLDER] [--vars VARS] [--db-type DB_TYPE] [--connections-file-path CONNECTIONS_FILE_PATH] [-c CHANGE_HISTORY_TABLE] [--create-change-history-table] [--query-tag QUERY_TAG] [-v] [-ac] [--dry-run]"
 ```
+
+## Aggressive deployment
+
+> _Forces deployment of specific script versions, bypassing the maximum published version check in the change history table. Use with caution._
+
+When using the [deploy](#deploy) command with the `--force`, `--from-version`, and `--to-version` parameters,
+the system will always deploy [versioned scripts](#versioned-script-naming) found within the project folder
+that fall within the specified version range.
+
+Deployment process of both [repeatable scripts](#repeatable-script-naming) and [always scripts](#always-script-naming) will
+still adhere to existing conventions.
 
 ## Maintainers
 

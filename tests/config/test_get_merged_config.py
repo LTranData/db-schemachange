@@ -46,6 +46,9 @@ def test_get_merged_config():
             "dry_run": False,
             "db_type": "MYSQL",
             "query_tag": "TEST_QUERY_TAG",
+            "force": False,
+            "from_version": None,
+            "to_version": None,
         }
 
 
