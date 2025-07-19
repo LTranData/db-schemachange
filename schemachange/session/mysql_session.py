@@ -31,6 +31,7 @@ class MySQLSession(BaseSession):
                 STATUS VARCHAR(1000),
                 BATCH_ID VARCHAR(1000),
                 BATCH_STATUS VARCHAR(1000),
+                IS_FORCED VARCHAR(1000),
                 INSTALLED_BY VARCHAR(1000),
                 INSTALLED_ON TIMESTAMP(6) -- MySQL requires precision of timestamp
             )

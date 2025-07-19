@@ -13,7 +13,7 @@ module_logger = structlog.getLogger(__name__)
 
 
 def get_schemachange_version():
-    return "1.0.4"
+    return "1.1.0"
 
 
 def main():

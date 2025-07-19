@@ -22,6 +22,9 @@ class DeployConfig(BaseConfig):
     dry_run: bool = False
     db_type: str | None = None
     query_tag: str | None = None
+    force: bool = False
+    from_version: str | None = None
+    to_version: str | None = None
 
     @classmethod
     def factory(
@@ -30,6 +33,9 @@ class DeployConfig(BaseConfig):
         change_history_table: str | None = None,
         db_type: str | None = None,
         query_tag: str | None = None,
+        force: bool = False,
+        from_version: str | None = None,
+        to_version: str | None = None,
         **kwargs,
     ):
         if "subcommand" in kwargs:
@@ -46,6 +52,9 @@ class DeployConfig(BaseConfig):
             change_history_table=change_history_table,
             db_type=db_type,
             query_tag=query_tag,
+            force=force,
+            from_version=from_version,
+            to_version=to_version,
             **kwargs,
         )
 

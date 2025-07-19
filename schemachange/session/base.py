@@ -235,6 +235,7 @@ class BaseSession(metaclass=Singleton):
                 STATUS VARCHAR(1000),
                 BATCH_ID VARCHAR(1000),
                 BATCH_STATUS VARCHAR(1000),
+                IS_FORCED VARCHAR(1000),
                 INSTALLED_BY VARCHAR(1000),
                 INSTALLED_ON TIMESTAMP
             )
@@ -319,6 +320,7 @@ class BaseSession(metaclass=Singleton):
         WHERE SCRIPT_TYPE = '{ScriptType.VERSIONED}'
             AND STATUS = '{ApplyStatus.SUCCESS}'
             AND BATCH_STATUS = '{ApplyStatus.SUCCESS}'
+            AND IS_FORCED = 'N'
         ORDER BY INSTALLED_ON DESC
         """
         data = self.execute_query(query=dedent(query))
@@ -347,6 +349,7 @@ class BaseSession(metaclass=Singleton):
         status: str,
         batch_id: str,
         batch_status: str,
+        force: bool,
     ) -> None:
         apply_user = f"'{self.user}'" if self.user else "NULL"
         query = f"""\
@@ -360,6 +363,7 @@ class BaseSession(metaclass=Singleton):
                 STATUS,
                 BATCH_ID,
                 BATCH_STATUS,
+                IS_FORCED,
                 INSTALLED_BY,
                 INSTALLED_ON
             ) VALUES (
@@ -372,6 +376,7 @@ class BaseSession(metaclass=Singleton):
                 '{status}',
                 '{batch_id}',
                 '{batch_status}',
+                '{"Y" if force and script.type == ScriptType.VERSIONED else "N"}',
                 {apply_user},
                 '{datetime.datetime.now().strftime(DEFAULT_DATETIME_FORMAT)}'
             )
@@ -385,6 +390,7 @@ class BaseSession(metaclass=Singleton):
         dry_run: bool,
         logger: structlog.BoundLogger,
         batch_id: str,
+        force: bool = False,
     ) -> None:
         if dry_run:
             logger.debug("Running in dry-run mode. Skipping execution")
@@ -417,6 +423,7 @@ class BaseSession(metaclass=Singleton):
                 status=ApplyStatus.SUCCESS,
                 batch_id=batch_id,
                 batch_status=ApplyStatus.IN_PROGRESS,
+                force=force,
             )
 
     def update_batch_status(self, batch_id: str, batch_status: str) -> None:

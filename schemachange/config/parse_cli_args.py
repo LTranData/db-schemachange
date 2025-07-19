@@ -84,6 +84,27 @@ def add_common_deploy_arguments(parser: ArgumentParser) -> None:
         help="Run schemachange in dry run mode (the default is False)",
         required=False,
     )
+    # Support aggressive deployment for specific versioned scripts
+    parser.add_argument(
+        "--force",
+        action="store_const",
+        const=True,
+        default=None,
+        help="Force deploy specific versioned scripts (the default is False)",
+        required=False,
+    )
+    parser.add_argument(
+        "--from-version",
+        type=str,
+        help="Start version of aggressive deployment",
+        required=False,
+    )
+    parser.add_argument(
+        "--to-version",
+        type=str,
+        help="End version of aggressive deployment",
+        required=False,
+    )
 
 
 def parse_cli_args(args) -> Dict:

@@ -29,6 +29,7 @@ def rollback(
 
         if not batch_data:
             logger.info("No batch data for this batch id", batch_id=batch_id)
+            db_session.close()
             return
 
         local_rollback_scripts = {}

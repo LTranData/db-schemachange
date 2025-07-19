@@ -364,6 +364,9 @@ class ConfigArgsSchema(Schema):
     log_level = fields.Integer(**OPTIONAL_ARGS)
     query_tag = fields.String(**OPTIONAL_ARGS)
     batch_id = fields.String(**OPTIONAL_ARGS)
+    force = fields.Boolean(**OPTIONAL_ARGS)
+    from_version = fields.String(**OPTIONAL_ARGS)
+    to_version = fields.String(**OPTIONAL_ARGS)
 
     @validates_schema()
     def validate_args(self, data, **kwargs):
@@ -372,6 +375,9 @@ class ConfigArgsSchema(Schema):
         subcommand = data.get("subcommand")
         batch_id = data.get("batch_id")
         script_path = data.get("script_path")
+        force = data.get("force")
+        from_version = data.get("from_version")
+        to_version = data.get("to_version")
         error_messages = []
 
         if subcommand == SubCommand.DEPLOY or subcommand == SubCommand.ROLLBACK:
@@ -385,6 +391,13 @@ class ConfigArgsSchema(Schema):
                     "'connections_file_path' config is missing for deploy command. "
                     "Please specify either in CLI parameters or YAML config file"
                 )
+
+            if subcommand == SubCommand.DEPLOY and force:
+                if not from_version or not to_version:
+                    error_messages.append(
+                        "Aggressive deployment requires from_version and to_version "
+                        "of versioned scripts to be defined"
+                    )
 
             if subcommand == SubCommand.ROLLBACK:
                 if not batch_id:
