@@ -241,6 +241,12 @@ The Jinja auto-escaping feature is disabled in `db-schemachange`, this feature i
 output language is HTML/XML. So if you are using `db-schemachange` with untrusted inputs you will need to handle this within
 your change scripts.
 
+|                    | YAML config file | Scripts |
+|--------------------|------------------|---------|
+| `env_var` function | ✅                | ✅       |
+| Config variables   | ❌                | ✅       |
+| Jinja modules      | ❌                | ✅       |
+
 ## Change History Table
 
 `db-schemachange` records all applied changes scripts to the change history table. By default, `db-schemachange` will attempt to
