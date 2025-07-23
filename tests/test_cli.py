@@ -80,5 +80,5 @@ def test_deploy(
             if item["event"] == "Completed successfully" and item["log_level"] == "info"
         ]
         assert len(deploy_log) > 0
-        assert deploy_log[0]["scripts_applied"] == 3
-        assert deploy_log[0]["scripts_skipped"] == 0
+        assert deploy_log[0]["scripts_applied"] == "3"
+        assert deploy_log[0]["scripts_skipped"] == "0"
